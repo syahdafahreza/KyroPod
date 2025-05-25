@@ -1,0 +1,1370 @@
+/* Root variables and global styles from user's prompt */
+:root {
+  --primary-light: #8abdff;
+  --primary: #6d5dfc;
+  --primary-dark: #5b0eeb;
+  --white: #ffffff;
+  --greyLight-1: #e4ebf5;
+  --greyLight-2: #c8d0e7;
+  --greyLight-3: #bec8e4;
+  --greyDark: #9baacf;
+
+  /* Updated Neumorphic Base Colors based on the new reference */
+  --neumorphic-base: var(--greyLight-1);
+  --neumorphic-light: var(--white);
+  --neumorphic-dark: var(--greyLight-2);
+
+  /* Updated Neumorphic Shadows based on the new reference */
+  --neumorphic-shadow-out-sm: 0.3rem 0.3rem 0.6rem var(--greyLight-2),
+    -0.2rem -0.2rem 0.5rem var(--white);
+  --neumorphic-shadow-in-sm: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white);
+  --neumorphic-shadow-out-md: 0.8rem 0.8rem 1.4rem var(--greyLight-2),
+    -0.2rem -0.2rem 1.8rem var(--white);
+  --neumorphic-shadow-flat: 0 0 0 transparent;
+
+  --rounded-md: 1rem;
+  --rounded-lg: 3rem;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 62.5%;
+  overflow-y: scroll;
+  background: var(--greyLight-1);
+}
+
+/* Font Weights */
+.font-weight-light {
+  font-weight: 300 !important;
+}
+
+.font-weight-lighter {
+  font-weight: lighter !important;
+}
+
+.font-weight-normal {
+  font-weight: 400 !important;
+}
+
+.font-weight-bold {
+  font-weight: 700 !important;
+}
+
+.font-weight-bolder {
+  font-weight: bolder !important;
+}
+
+/* Text Transforms */
+.text-lowercase {
+  text-transform: lowercase !important;
+}
+.text-uppercase {
+  text-transform: uppercase !important;
+}
+.text-capitalize {
+  text-transform: capitalize !important;
+}
+
+.font-italic {
+  font-style: italic !important;
+}
+
+/* Margins classes from Bootstrap */
+.m-0 {
+  margin: 0 !important;
+}
+
+.mt-0,
+.my-0 {
+  margin-top: 0 !important;
+}
+
+.mr-0,
+.mx-0 {
+  margin-right: 0 !important;
+}
+
+.mb-0,
+.my-0 {
+  margin-bottom: 0 !important;
+}
+
+.ml-0,
+.mx-0 {
+  margin-left: 0 !important;
+}
+
+.m-1 {
+  margin: 0.25rem !important;
+}
+
+.mt-1,
+.my-1 {
+  margin-top: 0.25rem !important;
+}
+
+.mr-1,
+.mx-1 {
+  margin-right: 0.25rem !important;
+}
+
+.mb-1,
+.my-1 {
+  margin-bottom: 0.25rem !important;
+}
+
+.ml-1,
+.mx-1 {
+  margin-left: 0.25rem !important;
+}
+
+.m-2 {
+  margin: 0.5rem !important;
+}
+
+.mt-2,
+.my-2 {
+  margin-top: 0.5rem !important;
+}
+
+.mr-2,
+.mx-2 {
+  margin-right: 0.5rem !important;
+}
+
+.mb-2,
+.my-2 {
+  margin-bottom: 0.5rem !important;
+}
+
+.ml-2,
+.mx-2 {
+  margin-left: 0.5rem !important;
+}
+
+.m-3 {
+  margin: 1rem !important;
+}
+
+.mt-3,
+.my-3 {
+  margin-top: 1rem !important;
+}
+
+.mr-3,
+.mx-3 {
+  margin-right: 1rem !important;
+}
+
+.mb-3,
+.my-3 {
+  margin-bottom: 1rem !important;
+}
+
+.ml-3,
+.mx-3 {
+  margin-left: 1rem !important;
+}
+
+.m-4 {
+  margin: 1.5rem !important;
+}
+
+.mt-4,
+.my-4 {
+  margin-top: 1.5rem !important;
+}
+
+.mr-4,
+.mx-4 {
+  margin-right: 1.5rem !important;
+}
+
+.mb-4,
+.my-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+.ml-4,
+.mx-4 {
+  margin-left: 1.5rem !important;
+}
+
+.m-5 {
+  margin: 3rem !important;
+}
+
+.mt-5,
+.my-5 {
+  margin-top: 3rem !important;
+}
+
+.mr-5,
+.mx-5 {
+  margin-right: 3rem !important;
+}
+
+.mb-5,
+.my-5 {
+  margin-bottom: 3rem !important;
+}
+
+.ml-5,
+.mx-5 {
+  margin-left: 3rem !important;
+}
+
+@media screen and (min-width: 900px) {
+  html {
+    font-size: 75%;
+  }
+}
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+  background: var(--greyLight-1);
+  gap: 2rem;
+  padding: 2rem;
+  height: 50rem;
+  border-radius: 3rem;
+}
+
+.button-container-flex {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.playlist-card {
+  background: var(--greyLight-1);
+  border-radius: 3rem;
+  box-shadow: 0.8rem 0.8rem 1.4rem var(--greyLight-2),
+    -0.2rem -0.2rem 1.8rem var(--white);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  flex: 0 0 28rem;
+  max-width: 28rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease-in-out;
+  position: relative; /* Added for positioning the logo */
+}
+
+.playlist-card.collapsed {
+  flex: 0 0 6rem;
+  max-width: 6rem;
+  padding: 1.5rem 0.5rem;
+}
+
+.playlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
+  transition: margin-bottom 0.3s ease-in-out;
+}
+
+/* Equalizer Styles */
+.eq-controls {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transition: opacity 0.3s ease-in-out 0.1s;
+}
+
+.eq-band {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.eq-band label {
+  font-size: 1.4rem;
+  color: var(--greyDark);
+  text-align: center;
+}
+
+.eq-band span {
+  font-size: 1.2rem;
+  color: var(--greyLight-3);
+  text-align: center;
+}
+
+.eq-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 1rem;
+  background: var(--greyLight-1);
+  border-radius: 1rem;
+  outline: none;
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white);
+}
+
+.eq-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: 0px 0.1rem 0.3rem 0px var(--greyLight-3);
+}
+
+.eq-slider::-moz-range-thumb {
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: 0px 0.1rem 0.3rem 0px var(--greyLight-3);
+}
+
+.search-input-container {
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease-in-out 0.1s;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.8rem 1.2rem;
+  border: none;
+  border-radius: var(--rounded-md);
+  font-size: 1.4rem;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  background-color: var(--neumorphic-base);
+  box-shadow: var(--neumorphic-shadow-in-sm);
+  color: var(--greyDark);
+  outline: none;
+}
+
+/* Container for the dropup */
+.dropup {
+  position: relative;
+  display: inline-block; /* Allows side-by-side buttons */
+}
+
+/* The button that triggers the dropup */
+.dropup-toggle {
+  /* Inherits btn__secondary styles */
+}
+
+/* The dropup menu content */
+.dropup-menu {
+  min-width: 110px !important;
+  background-color: var(--greyLight-1); /* Or your preferred background */
+  box-shadow: 0px -8px 16px 0px rgba(0, 0, 0, 0.2); /* Shadow above */
+  z-index: 1000; /* Ensure it's above other content */
+  border-radius: 0.5rem; /* Rounded corners */
+  padding: 0.5rem 0; /* Padding inside */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* Make items fill width */
+}
+
+/* For the actual menu that's now fixed/absolute */
+.dropup-menu[style*="position: fixed"] {
+  /* Target via attribute if set inline */
+  /* Ensure a high z-index to overlay everything else */
+  z-index: 1000;
+}
+
+/* Individual items in the dropup menu */
+.dropup-item {
+  background: none;
+  border: none;
+  color: var(--greyDark); /* Text color */
+  padding: 0.75rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.dropup-item:hover,
+.dropup-item:focus {
+  background: linear-gradient(
+    330deg,
+    var(--primary-dark) 0%,
+    var(--primary) 50%,
+    var(--primary-light) 100%
+  ); /* Highlight on hover */
+  color: var(--white); /* Text color on hover */
+}
+
+.search-input::placeholder {
+  color: var(--greyLight-3); /* Adjusted for better visibility */
+}
+
+.search-input:focus {
+  box-shadow: var(--neumorphic-shadow-out-sm);
+}
+
+.header-buttons-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  transition: opacity 0.3s ease-in-out 0.1s;
+}
+
+.playlist-card.collapsed .playlist-header {
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+.playlist-header h3 {
+  font-size: 2rem;
+  margin-right: auto;
+  color: var(--greyDark);
+  white-space: nowrap;
+  transition: opacity 0.3s ease-in-out 0.1s;
+}
+
+.playlist-list {
+  list-style: none;
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-right: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) var(--greyLight-2);
+  height: 25rem;
+  transition: opacity 0.3s ease-in-out 0.1s;
+}
+
+.playlist-list::-webkit-scrollbar {
+  width: 0.8rem;
+}
+
+.playlist-list::-webkit-scrollbar-track {
+  background: var(--greyLight-2);
+  border-radius: 0.4rem;
+}
+
+.playlist-list::-webkit-scrollbar-thumb {
+  background-color: var(--primary);
+  border-radius: 0.4rem;
+  border: 0.2rem solid var(--greyLight-2);
+}
+
+.playlist-item {
+  margin-bottom: 0.8rem;
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-radius: 1rem;
+}
+
+.playlist-item-inner {
+  background: var(--greyLight-1);
+  border-radius: 1rem;
+  box-shadow: 0.3rem 0.3rem 0.6rem var(--greyLight-2),
+    -0.2rem -0.2rem 0.5rem var(--white);
+  color: var(--greyDark);
+  padding: 1rem 1.5rem;
+  font-size: 1.4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.playlist-item:hover .playlist-item-inner {
+  color: var(--primary);
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white);
+}
+
+.playlist-item.active .playlist-item-inner {
+  background: linear-gradient(
+    330deg,
+    var(--primary-dark) 0%,
+    var(--primary) 50%,
+    var(--primary-light) 100%
+  );
+  color: var(--primary-dark);
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--primary-dark),
+    inset -0.2rem -0.2rem 0.5rem var(--primary-light);
+  border-radius: 1rem;
+}
+
+.playlist-song-name {
+  flex-grow: 1;
+  margin-right: 1rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.btn__delete {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-size: 1.6rem;
+  color: var(--greyDark);
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.btn__delete:hover {
+  color: var(--primary);
+  box-shadow: 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    -0.2rem -0.2rem 0.5rem var(--white);
+}
+
+.btn__delete:active {
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white);
+  color: var(--primary-dark);
+}
+
+.playlist-item.active .playlist-song-name {
+  color: white;
+}
+
+.playlist-item.active .btn__delete {
+  color: var(--primary-dark); /* Ensure contrast on active background */
+}
+.playlist-item.active .btn__delete:hover {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ); /* Lighter hover for active state */
+  color: var(--white);
+}
+
+.playlist-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--greyDark);
+  font-style: italic;
+}
+
+/* Main Player Card - Takes remaining space */
+.player-card {
+  background: var(--greyLight-1);
+  border-radius: 3rem;
+  box-shadow: 0.8rem 0.8rem 1.4rem var(--greyLight-2),
+    -0.2rem -0.2rem 1.8rem var(--white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 2rem;
+  position: relative;
+  flex: 1;
+  height: 100%;
+  max-width: 100%;
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+.album-art-wrapper {
+  width: 15rem;
+  height: 15rem;
+  border-radius: 2rem;
+  box-shadow: 0.8rem 0.8rem 1.4rem var(--greyLight-2),
+    -0.2rem -0.2rem 1.8rem var(--white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.album-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2rem;
+}
+
+.song-info {
+  text-align: center;
+  margin-bottom: 2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  width: 80%;
+}
+
+.song-title {
+  font-size: 2.8rem;
+  color: var(--greyDark);
+  margin-bottom: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+  --marquee-duration: 0s;
+  --marquee-distance: 0px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.song-title.is-scrolling {
+  text-overflow: clip;
+}
+
+.song-title.is-scrolling span {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee var(--marquee-duration) linear infinite;
+  transform: translateX(0);
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  5% {
+    transform: translateX(0);
+  }
+
+  95% {
+    transform: translateX(var(--marquee-distance));
+  }
+
+  100% {
+    transform: translateX(var(--marquee-distance));
+  }
+}
+
+.song-artist {
+  font-size: 1.6rem;
+  color: var(--greyLight-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  position: relative;
+}
+
+.song-artist span {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee-artist var(--marquee-duration, 0s) linear infinite;
+  animation-play-state: paused;
+}
+
+.song-artist.is-scrolling-artist span {
+  animation-play-state: running;
+}
+
+@keyframes marquee-artist {
+  0% {
+    transform: translateX(0);
+  }
+
+  5% {
+    transform: translateX(0);
+  }
+
+  95% {
+    transform: translateX(var(--marquee-distance));
+  }
+
+  100% {
+    transform: translateX(var(--marquee-distance));
+  }
+}
+
+.controls-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.progress-bar-container {
+  width: 80%;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Main input element - its background will be the "filled" color for WebKit/Blink */
+.progress-slider {
+  -webkit-appearance: none; /* Remove browser default styling */
+  appearance: none; /* Standard way to remove default styling */
+  width: 100%;
+  height: 1rem; /* This is the height of the track area */
+  background: var(--primary); /* Color for the filled trail in WebKit/Blink */
+  border-radius: 1rem; /* Match track's border-radius for clipping */
+  outline: none; /* Remove focus outline */
+  /* The main box-shadow is moved to the track pseudo-elements */
+}
+
+/* WebKit/Blink Track (Chrome, Safari, new Edge, Opera) */
+.progress-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 1rem;
+  cursor: pointer;
+  background: var(--greyLight-1); /* Color for the UNFILLED part of the track */
+  border-radius: 1rem; /* Rounding for the track */
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    /* Original neumorphic shadow */ inset -0.2rem -0.2rem 0.5rem var(--white);
+}
+
+/* WebKit/Blink Thumb (Circle Handle) */
+.progress-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Remove browser default styling for thumb */
+  appearance: none;
+  width: 2rem; /* Original width */
+  height: 2rem; /* Original height */
+  border-radius: 50%; /* Make it circular */
+  background: var(--primary); /* Original thumb background color */
+  cursor: pointer;
+  box-shadow: 0px 0.1rem 0.3rem 0px var(--greyLight-3); /* Original thumb shadow */
+  margin-top: -0.5rem; /* Vertically center thumb over the 1rem track: (track_height - thumb_height) / 2 = (1rem - 2rem) / 2 = -0.5rem */
+}
+
+/* Firefox Track */
+.progress-slider::-moz-range-track {
+  width: 100%;
+  height: 1rem;
+  cursor: pointer;
+  background: var(--greyLight-1); /* Color for the UNFILLED part of the track */
+  border-radius: 1rem; /* Rounding for the track */
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    /* Original neumorphic shadow */ inset -0.2rem -0.2rem 0.5rem var(--white);
+  border: none; /* Remove default Firefox border on track */
+}
+
+/* Firefox Filled Trail */
+.progress-slider::-moz-range-progress {
+  height: 1rem; /* Match track height */
+  background-color: var(--primary); /* Color for the FILLED trail */
+  border-radius: 1rem; /* Match track's rounding; ensures fill is within the track's shape */
+  /* The neumorphic shadow comes from ::-moz-range-track, so ::-moz-range-progress sits inside it */
+}
+
+/* Firefox Thumb (Circle Handle) */
+.progress-slider::-moz-range-thumb {
+  width: 2rem; /* Original width */
+  height: 2rem; /* Original height */
+  border-radius: 50%; /* Make it circular */
+  background: var(--primary); /* Original thumb background color */
+  cursor: pointer;
+  box-shadow: 0px 0.1rem 0.3rem 0px var(--greyLight-3); /* Original thumb shadow */
+  border: none; /* Remove default Firefox border on thumb */
+  /* Firefox generally aligns the thumb correctly without margin adjustments if heights are consistent */
+}
+
+/* Microsoft Edge (Old EdgeHTML - for completeness, modern Edge uses WebKit styles) */
+.progress-slider::-ms-track {
+  width: 100%;
+  height: 1rem;
+  cursor: pointer;
+  background: transparent; /* Make base track transparent */
+  border-color: transparent;
+  color: transparent;
+}
+
+.progress-slider::-ms-fill-lower {
+  /* Filled part for older Edge */
+  background: var(--primary);
+  border-radius: 1rem;
+  /* You might want the inset shadow here too if you want the fill to also look inset */
+  /* box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+                inset -0.2rem -0.2rem 0.5rem var(--white); */
+}
+
+.progress-slider::-ms-fill-upper {
+  /* Unfilled part for older Edge */
+  background: var(--greyLight-1);
+  border-radius: 1rem;
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white);
+}
+
+.progress-slider::-ms-thumb {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: 0px 0.1rem 0.3rem 0px var(--greyLight-3);
+  margin-top: 0px; /* Edge usually handles this well */
+  border: none;
+}
+
+.time-display {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 1.2rem;
+  color: var(--greyDark);
+  margin-top: 0.5rem;
+}
+
+.player-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.icon__prev,
+.icon__next,
+.icon__repeat,
+.icon__shuffle {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  box-shadow: 0.3rem 0.3rem 0.6rem var(--greyLight-2),
+    -0.2rem -0.2rem 0.5rem var(--white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.2rem;
+  color: var(--greyDark);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+.icon__prev:hover,
+.icon__next:hover,
+.icon__repeat:hover,
+.icon__shuffle:hover {
+  color: var(--primary);
+}
+
+.icon__prev:active,
+.icon__next:active,
+.icon__repeat.active,
+.icon__shuffle.active {
+  color: #434190;
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white);
+}
+
+/* Reusing and adapting .circle and .circle__btn from prompt */
+.circle {
+  width: 9rem;
+  /* Adjusted for better fit */
+  height: 9rem;
+  /* Adjusted for better fit */
+  justify-self: center;
+  border-radius: 1rem;
+  display: grid;
+  grid-template-rows: 1fr;
+  justify-items: center;
+  align-items: center;
+  position: relative;
+}
+
+.circle__btn {
+  grid-row: 1/2;
+  grid-column: 1/2;
+  width: 6rem;
+  height: 6rem;
+  display: flex;
+  margin: 0.6rem;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  font-size: 3.2rem;
+  color: var(--primary);
+  z-index: 300;
+  background: var(--greyLight-1);
+  box-shadow: 0.3rem 0.3rem 0.6rem var(--greyLight-2),
+    -0.2rem -0.2rem 0.5rem var(--white);
+  cursor: pointer;
+  position: relative;
+  outline: none;
+  border: none;
+  /* Remove outline on focus */
+}
+
+.circle__btn.shadow {
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white);
+}
+
+.circle__btn .fa-play,
+.circle__btn .fa-pause {
+  /* Apply the gradient background to the icon itself */
+  background-image: linear-gradient(
+    330deg,
+    var(--primary-dark) 0%,
+    var(--primary) 50%,
+    var(--primary-light) 100%
+  );
+
+  /* Clip the background to the text (icon) shape */
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  /* Make the icon's color transparent so the clipped background shows through */
+  color: transparent;
+
+  /* Optional: Add a fallback color for older browsers */
+  /* color: var(--primary); */
+  position: absolute;
+  top: 50%;
+  /* Added for vertical centering */
+  left: 50%;
+  /* Added for horizontal centering */
+  transform: translate(-50%, -50%);
+  /* Added for precise centering */
+  transition: all 0.2s ease-in-out;
+}
+
+/* Control visibility of play/pause icons based on isPlaying state */
+.circle__btn .fa-play {
+  opacity: 1;
+}
+
+.circle__btn .fa-pause {
+  opacity: 0;
+}
+
+.circle__btn.shadow .fa-play {
+  opacity: 0;
+}
+
+.circle__btn.shadow .fa-pause {
+  opacity: 1;
+}
+
+.circle__back-1,
+.circle__back-2 {
+  grid-row: 1/2;
+  grid-column: 1/2;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  filter: blur(1px);
+  z-index: 100;
+}
+
+.circle__back-1 {
+  box-shadow: 0.4rem 0.4rem 0.8rem var(--greyLight-2),
+    -0.4rem -0.4rem 0.8rem var(--white);
+  background: linear-gradient(
+    to bottom right,
+    var(--greyLight-2) 0%,
+    var(--white) 100%
+  );
+  animation: waves 4s ease-in-out infinite;
+}
+
+.circle__back-1.paused {
+  animation-play-state: paused;
+}
+
+.circle__back-2 {
+  box-shadow: 0.4rem 0.4rem 0.8rem var(--greyLight-2),
+    -0.4rem -0.4rem 0.8rem var(--white);
+  animation: waves 4s ease-in-out 2s infinite;
+}
+
+.circle__back-2.paused {
+  animation-play-state: paused;
+}
+
+@keyframes waves {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+    /* Apply to keyframes for smoother transitions between states */
+  }
+
+  50% {
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+
+  100% {
+    transform: scale(2);
+    opacity: 0;
+    animation-timing-function: ease-in-out;
+  }
+}
+
+.volume-control {
+  width: 60%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.volume-control i {
+  font-size: 2rem;
+  color: var(--greyDark);
+}
+
+.volume-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 1rem;
+  background: var(--greyLight-1);
+  border-radius: 1rem;
+  outline: none;
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white);
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: 0px 0.1rem 0.3rem 0px var(--greyLight-3);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  box-shadow: 0px 0.1rem 0.3rem 0px var(--greyLight-3);
+}
+
+.btn {
+  box-shadow: 0.3rem 0.3rem 0.6rem var(--greyLight-2),
+    -0.2rem -0.2rem 0.5rem var(--white);
+  background-color: var(--neumorphic-base);
+  padding: 0.8rem 1.6rem;
+  border-radius: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-size: 1.6rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-pl {
+  padding: 0.8rem 1.4rem;
+}
+
+.btn__secondary {
+  color: var(--greyDark);
+}
+
+.btn__secondary:hover {
+  color: var(--primary);
+}
+
+.btn__secondary:active {
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white);
+}
+
+.btn p {
+  font-size: 1.6rem;
+}
+
+.sidebar-toggle-btn,
+.search-toggle-btn {
+  /* Combined for similar base styles */
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  box-shadow: 0.3rem 0.3rem 0.6rem var(--greyLight-2),
+    -0.2rem -0.2rem 0.5rem var(--white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  color: var(--greyDark);
+  cursor: pointer;
+  border: none;
+  background: var(--greyLight-1);
+  outline: none;
+  transition: opacity 0.3s ease-in-out;
+  z-index: 500; /* Ensure buttons are clickable */
+}
+
+/* NEW RULE: Hide the equalizer toggle button when the equalizer sidebar is open */
+.sidebar-toggle-btn.eq-button-hidden {
+  opacity: 0; /* Fade out */
+  pointer-events: none; /* Make it unclickable when hidden */
+}
+
+.sidebar-toggle-btn:hover,
+.search-toggle-btn:hover {
+  color: var(--primary);
+}
+
+.sidebar-toggle-btn:active,
+.search-toggle-btn:active {
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white);
+}
+
+/* Styles for the new logo */
+.playlist-card-logo {
+  display: none; /* Hidden by default */
+  position: absolute;
+  color: var(--primary); /* Logo color */
+  font-size: 2.4rem; /* Logo icon size */
+  z-index: 10; /* Ensure it's visible but doesn't obstruct crucial elements */
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  /* Centering the icon within this container */
+  align-items: center;
+  justify-content: start;
+}
+
+.playlist-card.collapsed .playlist-card-logo {
+  display: flex; /* Use flex to center the icon */
+  opacity: 1;
+
+  /* Default collapsed state (vertical strip on large screens) */
+  /* The card is 6rem wide. padding: 1.5rem 0.5rem; */
+  width: 100%; /* Take full width of parent for easier centering of rotated element */
+  height: auto; /* Content height */
+  left: 0; /* Align to the left edge of the card */
+  bottom: 2rem; /* Distance from the physical bottom of the card */
+  transform: rotate(-90deg);
+  transform-origin: center; /* Rotate the container */
+}
+
+/* Responsive adjustments */
+@media (max-width: 960px) {
+  .container {
+    flex-direction: column;
+    height: auto;
+    padding: 1.5rem;
+    gap: 1.5rem;
+    width: 95%;
+  }
+
+  .playlist-card,
+  .player-card {
+    width: 100%;
+    height: auto;
+    max-width: none;
+  }
+
+  .playlist-card.collapsed {
+    height: 6rem;
+    flex: none;
+    max-height: 6rem;
+    padding: 0.5rem 1.5rem; /* top/bottom 0.5rem, left/right 1.5rem */
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .playlist-card.collapsed .playlist-header {
+    justify-content: flex-start;
+    margin-bottom: 0;
+    flex-grow: 1;
+  }
+
+  .playlist-card.collapsed .sidebar-toggle-btn {
+    margin-left: auto;
+  }
+
+  /* Logo adjustments for horizontal collapsed card */
+  .playlist-card.collapsed .playlist-card-logo {
+    /* Card is horizontal, height 6rem. padding: 0.5rem 1.5rem; */
+    width: auto; /* Icon's natural width */
+    height: 100%; /* Make logo container span card height for easier transform */
+    top: 0; /* Align to top for vertical centering with transform */
+    left: 1rem; /* Position from left. Card has 1.5rem left padding. */
+    /* This places it slightly into the padding area. Fine for visual balance. */
+    transform: translateY(0) rotate(-90deg); /* Reset Y translate, just rotate */
+    /* To vertically center the icon itself within the 100% height container: */
+    /* The container is display:flex, align-items:center, justify-content:center */
+    /* So the icon inside will be centered. Then the container is rotated. */
+    /* Let's ensure the transform is correct for this orientation */
+    transform-origin: center left; /* Rotate around the left edge, vertically centered */
+    /* Or more simply, if the container is full height and flex centers the icon: */
+    /* The container itself is what we position and rotate. */
+    /* Re-evaluating: */
+    top: 50%;
+    left: 2.5rem; /* Adjust for visual centering considering rotation point. (1.5rem padding + 1rem into content) */
+    transform: translateY(-50%) rotate(-90deg);
+    transform-origin: center; /* Rotate around the center of the logo element */
+    bottom: auto; /* Clear bottom from previous rule */
+  }
+
+  .playlist-card.open {
+    height: auto;
+    max-height: 25rem; /* Max height for open playlist on small screens */
+    padding: 1.5rem;
+    flex: none;
+  }
+
+  .album-art-wrapper {
+    width: 15rem;
+    height: 15rem;
+  }
+
+  .song-info {
+    max-width: 90%;
+  }
+
+  .song-title {
+    font-size: 2.2rem;
+  }
+
+  .song-artist {
+    font-size: 1.4rem;
+  }
+
+  .progress-bar-container,
+  .volume-control {
+    width: 90%;
+  }
+
+  .player-buttons {
+    gap: 1.5rem; /* Slightly reduce gap */
+  }
+
+  .player-buttons button,
+    .player-buttons .icon__prev, /* Target all button-like elements */
+    .player-buttons .icon__next,
+    .player-buttons .icon__repeat,
+    .player-buttons .icon__shuffle {
+    width: 4.5rem; /* Slightly smaller */
+    height: 4.5rem;
+    font-size: 2rem;
+  }
+
+  .circle {
+    /* Adjust play button container */
+    width: 8rem;
+    height: 8rem;
+  }
+  .circle__btn {
+    /* Adjust play button */
+    width: 5.5rem;
+    height: 5.5rem;
+    font-size: 3rem;
+  }
+
+  .circle__back-1,
+  .circle__back-2 {
+    width: 5.5rem;
+    height: 5.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .playlist-header:not(.playlist-card.collapsed .playlist-header) {
+    /* Only apply to open card */
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .playlist-card:not(.collapsed) .playlist-header .sidebar-toggle-btn {
+    /* Only for open card on small screen if header is column */
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+  }
+  .playlist-card:not(.collapsed) .playlist-header .search-toggle-btn {
+    align-self: flex-start; /* Keep search button aligned left */
+  }
+
+  .btn__secondary {
+    width: auto; /* Allow buttons to size naturally */
+    padding: 0.8rem 1.2rem; /* Adjust padding */
+  }
+  .button-container-flex {
+    justify-content: space-around;
+    transition: opacity 0.3s ease-in-out 0.1s; /* Better distribute buttons */
+  }
+
+  /* ADD: Rules for when the playlist-card is collapsed */
+.playlist-card.collapsed .playlist-header h3,
+.playlist-card.collapsed .eq-controls,
+.playlist-card.collapsed .search-input-container,
+.playlist-card.collapsed .header-buttons-group,
+.playlist-card.collapsed .playlist-list,
+.playlist-card.collapsed .button-container-flex:not(.sidebar-toggle-btn-wrapper) { /* Exclude the button container that holds the toggle */
+  opacity: 0;
+  pointer-events: none; /* Disable interaction when hidden */
+  transition-delay: 0s; /* No delay when hiding */
+}
+
+  .song-title {
+    font-size: 1.8rem;
+  }
+
+  .song-artist {
+    font-size: 1.2rem;
+  }
+  .player-buttons {
+    gap: 1rem;
+  }
+  .player-buttons button,
+  .player-buttons .icon__prev,
+  .player-buttons .icon__next,
+  .player-buttons .icon__repeat,
+  .player-buttons .icon__shuffle {
+    width: 4rem;
+    height: 4rem;
+    font-size: 1.8rem;
+  }
+  .circle__btn {
+    width: 5rem;
+    height: 5rem;
+    font-size: 2.8rem;
+  }
+  .circle__back-1,
+  .circle__back-2 {
+    width: 5rem;
+    height: 5rem;
+  }
+}

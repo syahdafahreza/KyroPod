@@ -1,0 +1,34 @@
+{
+    "short_name": "KyroPod",
+    "name": "KyroPod | By Syahda Fahreza",
+    "icons": [
+      {
+        "src": "https://syahdafahreza.github.io/assets/svg/compact-disc-solid-dark.svg",
+        "type": "image/svg+xml",
+        "sizes": "any",
+        "purpose": "any monochrome"
+      },
+      {
+        "src": "https://syahdafahreza.github.io/assets/svg/compact-disc-solid-light.svg",
+        "type": "image/svg+xml",
+        "sizes": "any",
+        "purpose": "any monochrome"
+      },
+      {
+        "src": "https://syahdafahreza.github.io/assets/icons/icon192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "https://syahdafahreza.github.io/assets/icons/icon512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "start_url": "kyropod.test", 
+    "background_color": "#bec8e4", 
+    "display": "standalone", 
+    "scope": "/", 
+    "theme_color": "#9baacf",
+    "description": "A neuromorphic design music player."
+  }
