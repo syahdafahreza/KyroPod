@@ -1196,6 +1196,7 @@ html {
   .playlist-card.collapsed {
     height: 6rem;
     flex: none;
+    max-width: 100%;
     max-height: 6rem;
     padding: 0.5rem 1.5rem; /* top/bottom 0.5rem, left/right 1.5rem */
     flex-direction: row;
@@ -1221,7 +1222,7 @@ html {
     top: 0; /* Align to top for vertical centering with transform */
     left: 1rem; /* Position from left. Card has 1.5rem left padding. */
     /* This places it slightly into the padding area. Fine for visual balance. */
-    transform: translateY(0) rotate(-90deg); /* Reset Y translate, just rotate */
+    transform: translateY(0) rotate(0deg); /* Reset Y translate, just rotate */
     /* To vertically center the icon itself within the 100% height container: */
     /* The container is display:flex, align-items:center, justify-content:center */
     /* So the icon inside will be centered. Then the container is rotated. */
@@ -1231,15 +1232,15 @@ html {
     /* The container itself is what we position and rotate. */
     /* Re-evaluating: */
     top: 50%;
-    left: 2.5rem; /* Adjust for visual centering considering rotation point. (1.5rem padding + 1rem into content) */
-    transform: translateY(-50%) rotate(-90deg);
+    left: 7rem; /* Adjust for visual centering considering rotation point. (1.5rem padding + 1rem into content) */
+    transform: translateY(-50%) rotate(0deg);
     transform-origin: center; /* Rotate around the center of the logo element */
     bottom: auto; /* Clear bottom from previous rule */
   }
 
   .playlist-card.open {
     height: auto;
-    max-height: 25rem; /* Max height for open playlist on small screens */
+    max-height: 100%; /* Max height for open playlist on small screens */
     padding: 1.5rem;
     flex: none;
   }
@@ -1305,6 +1306,12 @@ html {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+  }
+
+  .playlist-card.collapsed {
+    flex: 0 0 6rem;
+    max-width: 100%;
+    padding: 1.5rem 0.5rem;
   }
 
   .playlist-card:not(.collapsed) .playlist-header .sidebar-toggle-btn {
