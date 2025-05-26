@@ -1,37 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KyroPod | By Syahda Fahreza</title>
-    <link rel="stylesheet" href="themes/neuromorphic.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="themes/neuromorphic.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
     <link href="fontawesome/css/fontawesome.css" rel="stylesheet" />
     <link href="fontawesome/css/brands.css" rel="stylesheet" />
     <link href="fontawesome/css/solid.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="svg/compact-disc-solid-light.svg" media="(prefers-color-scheme: dark)">
-    <link rel="icon" type="image/svg+xml" href="svg/compact-disc-solid-dark.svg" media="(prefers-color-scheme: light)">
-    <link rel="icon" type="image/svg+xml" href="svg/compact-disc-solid-light.svg">
-    <link rel="manifest" href="manifest.json">
-    <script src="https://kit.fontawesome.com/b2e4954604.js" crossorigin="anonymous"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="svg/compact-disc-solid-light.svg"
+      media="(prefers-color-scheme: dark)"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="svg/compact-disc-solid-dark.svg"
+      media="(prefers-color-scheme: light)"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="svg/compact-disc-solid-light.svg"
+    />
+    <link rel="manifest" href="manifest.json" />
+    <script
+      src="https://kit.fontawesome.com/b2e4954604.js"
+      crossorigin="anonymous"
+    ></script>
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js') // Path to your service worker file
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker registration failed: ', error);
-                    });
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("sw.js") // Path to your service worker file
+            .then((registration) => {
+              console.log(
+                "ServiceWorker registration successful with scope: ",
+                registration.scope
+              );
+            })
+            .catch((error) => {
+              console.log("ServiceWorker registration failed: ", error);
             });
-        }
+        });
+      }
     </script>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="root"></div>
 
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -40,983 +66,1225 @@
     <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
 
     <script type="text/babel">
-        const { useState, useRef, useEffect, useCallback } = React;
-
-        // --- CUSTOM HOOK: useMarquee ---
-        const useMarquee = (text, targetRef, gapPixels = 30, speed = 30) => {
-            const [isOverflowing, setIsOverflowing] = useState(false);
-
-            useEffect(() => {
-                const checkOverflowAndSetMarquee = () => {
-                    if (targetRef.current) {
-                        const tempSpan = document.createElement('span');
-                        tempSpan.style.visibility = 'hidden';
-                        tempSpan.style.position = 'absolute';
-                        tempSpan.style.whiteSpace = 'nowrap';
-
-                        const computedStyle = getComputedStyle(targetRef.current);
-                        tempSpan.style.fontSize = computedStyle.fontSize;
-                        tempSpan.style.fontFamily = computedStyle.fontFamily;
-                        tempSpan.style.fontWeight = computedStyle.fontWeight;
-                        tempSpan.style.letterSpacing = computedStyle.letterSpacing;
-                        tempSpan.textContent = text;
-
-                        document.body.appendChild(tempSpan);
-                        const singleTextWidth = tempSpan.scrollWidth;
-                        document.body.removeChild(tempSpan);
-
-                        const containerWidth = targetRef.current.clientWidth;
-                        const overflows = singleTextWidth > containerWidth;
-
-                        setIsOverflowing(overflows);
-
-                        if (overflows) {
-                            const distanceToScroll = singleTextWidth + gapPixels;
-                            const duration = distanceToScroll / speed;
-                            targetRef.current.style.setProperty('--marquee-duration', `${duration}s`);
-                            targetRef.current.style.setProperty('--marquee-distance', `-${distanceToScroll}px`);
-                        } else {
-                            targetRef.current.style.setProperty('--marquee-duration', '0s');
-                            targetRef.current.style.setProperty('--marquee-distance', '0px');
-                        }
-                    }
-                };
-
-                const timeoutId = setTimeout(checkOverflowAndSetMarquee, 50);
-                window.addEventListener('resize', checkOverflowAndSetMarquee);
-
-                return () => {
-                    clearTimeout(timeoutId);
-                    window.removeEventListener('resize', checkOverflowAndSetMarquee);
-                };
-            }, [text, targetRef, gapPixels, speed]);
-
-            return { isOverflowing };
-        };
-        // --- END CUSTOM HOOK ---
-
-        function App() {
-            // State Variables
-            const [playlist, setPlaylist] = useState([]);
-            const [currentSongIndex, setCurrentSongIndex] = useState(null);
-            const [isPlaying, setIsPlaying] = useState(false);
-            const [isRepeating, setIsRepeating] = useState(false);
-            const [isShuffling, setIsShuffling] = useState(false);
-            const [albumArtUrl, setAlbumArtUrl] = useState('https://placehold.co/200x200/bec8e4/9baacf?text=No+Art');
-            const [songTitle, setSongTitle] = useState('Tidak ada lagu yang sedang diputar');
-            const [songArtist, setSongArtist] = useState('');
-            const [currentTime, setCurrentTime] = useState(0);
-            const [duration, setDuration] = useState(0);
-            const [volume, setVolume] = useState(0.8);
-            const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-            const [isEQSidebarOpen, setIsEQSidebarOpen] = useState(false);
-            const [isSortDropupOpen, setIsSortDropupOpen] = useState(false);
-            const [isSearchActive, setIsSearchActive] = useState(false);
-            const [searchQuery, setSearchQuery] = useState('');
-
-            // NEW: State for EQ settings
-            const [eqSettings, setEqSettings] = useState({
-                low: 0,    // Typically around 60-250 Hz for bass
-                mid: 0,    // Typically around 500-2000 Hz for mids
-                high: 0    // Typically around 2000-8000 Hz for treble
-            });
-
-            // Refs
-            const audioRef = useRef(null);
-            const fileInputRef = useRef(null);
-            const currentObjectUrl = useRef(null);
-            const sortButtonRef = useRef(null);
-            const dropupMenuRef = useRef(null);
-            const titleRef = useRef(null);
-            const artistRef = useRef(null);
-
-            // NEW: Refs for Web Audio API nodes to persist them across renders
-            const audioContextRef = useRef(null);
-            const sourceNodeRef = useRef(null);
-            const gainNodeRef = useRef(null); // Master gain for overall volume control
-            const lowShelfFilterRef = useRef(null);
-            const peakingFilterRef = useRef(null);
-            const highShelfFilterRef = useRef(null);
-
-            // Derived States/Custom Hooks
-            const gapPixels = 30;
-            const { isOverflowing: isTitleOverflowing } = useMarquee(songTitle, titleRef, gapPixels);
-            const { isOverflowing: isArtistOverflowing } = useMarquee(songArtist, artistRef, gapPixels);
-
-            const filteredPlaylist = playlist.filter(song =>
-                song.name.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-
-            // Add this function
-            const toggleEQSidebar = () => {
-                setIsEQSidebarOpen(prevState => !prevState);
-                setIsSidebarOpen(false); // Ensure playlist sidebar is closed when EQ opens
-                // Attempt to resume audio context when EQ sidebar is opened, as it's a user interaction
-                if (!isEQSidebarOpen && audioContextRef.current && audioContextRef.current.state === 'suspended') {
-                    audioContextRef.current.resume().catch(e => console.error("Error resuming AudioContext:", e));
-                }
-            };
-
-            // NEW: Handler for EQ slider changes
-            const handleEQChange = useCallback((band, value) => {
-                setEqSettings(prevSettings => ({
-                    ...prevSettings,
-                    [band]: parseFloat(value) // Ensure value is a number
-                }));
-            }, []);
-
-            // Initial setup of Web Audio API
-            useEffect(() => {
-                const audio = audioRef.current;
-                if (!audio) return;
-
-                if (!audioContextRef.current) {
-                    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                const audioContext = audioContextRef.current;
-
-                // Create source node if it doesn't exist
-                if (!sourceNodeRef.current) {
-                    sourceNodeRef.current = audioContext.createMediaElementSource(audio);
-                }
-
-                // Create master gain node (for your `volume` state)
-                if (!gainNodeRef.current) {
-                    gainNodeRef.current = audioContext.createGain();
-                    gainNodeRef.current.gain.value = volume; // Initialize with current volume
-                }
-
-                // Create EQ filter nodes if they don't exist
-                if (!lowShelfFilterRef.current) {
-                    lowShelfFilterRef.current = audioContext.createBiquadFilter();
-                    lowShelfFilterRef.current.type = "lowshelf";
-                    lowShelfFilterRef.current.frequency.value = 250; // Bass frequency
-                    lowShelfFilterRef.current.Q.value = 1; // Q factor for the filter
-                }
-
-                if (!peakingFilterRef.current) {
-                    peakingFilterRef.current = audioContext.createBiquadFilter();
-                    peakingFilterRef.current.type = "peaking";
-                    peakingFilterRef.current.frequency.value = 1500; // Mid frequency
-                    peakingFilterRef.current.Q.value = 1; // Q factor for the filter
-                }
-
-                if (!highShelfFilterRef.current) {
-                    highShelfFilterRef.current = audioContext.createBiquadFilter();
-                    highShelfFilterRef.current.type = "highshelf";
-                    highShelfFilterRef.current.frequency.value = 4000; // Treble frequency
-                    highShelfFilterRef.current.Q.value = 1; // Q factor for the filter
-                }
-
-                // Connect the audio graph (do this once)
-                // Source -> Gain -> LowShelf -> Peaking -> HighShelf -> Destination
-                sourceNodeRef.current.disconnect(); // Disconnect existing connections to prevent multiple connections
-                gainNodeRef.current.disconnect();
-                lowShelfFilterRef.current.disconnect();
-                peakingFilterRef.current.disconnect();
-                highShelfFilterRef.current.disconnect();
-
-                sourceNodeRef.current.connect(gainNodeRef.current);
-                gainNodeRef.current.connect(lowShelfFilterRef.current);
-                lowShelfFilterRef.current.connect(peakingFilterRef.current);
-                peakingFilterRef.current.connect(highShelfFilterRef.current);
-                highShelfFilterRef.current.connect(audioContext.destination);
-
-                // Cleanup: On unmount, disconnect and close audio context
-                return () => {
-                    if (sourceNodeRef.current) sourceNodeRef.current.disconnect();
-                    if (gainNodeRef.current) gainNodeRef.current.disconnect();
-                    if (lowShelfFilterRef.current) lowShelfFilterRef.current.disconnect();
-                    if (peakingFilterRef.current) peakingFilterRef.current.disconnect();
-                    if (highShelfFilterRef.current) highShelfFilterRef.current.disconnect();
-
-                    // It's generally not recommended to close the AudioContext if other parts of your app might use it,
-                    // but for a single player, it might be acceptable. Consider disconnecting nodes instead of closing.
-                    // if (audioContextRef.current && audioContext.state !== 'closed') {
-                    //     audioContextRef.current.close();
-                    // }
-                };
-            }, []); // Empty dependency array means this runs once on mount
-
-            // Effect to update EQ filter gains when eqSettings change
-            useEffect(() => {
-                if (!lowShelfFilterRef.current || !peakingFilterRef.current || !highShelfFilterRef.current) return;
-
-                lowShelfFilterRef.current.gain.value = eqSettings.low;
-                peakingFilterRef.current.gain.value = eqSettings.mid;
-                highShelfFilterRef.current.gain.value = eqSettings.high;
-            }, [eqSettings]); // This effect runs whenever eqSettings change
-
-            // Effect to update master volume gain when volume state changes
-            useEffect(() => {
-                if (gainNodeRef.current) {
-                    gainNodeRef.current.gain.value = volume;
-                }
-            }, [volume]);
-
-
-            const handleSearchClick = () => {
-                setIsSearchActive(prev => !prev);
-                if (isSearchActive) {
-                    setSearchQuery('');
-                }
-            };
-
-            // Function to toggle the dropup menu
-            const toggleSortDropup = () => {
-                setIsSortDropupOpen(prev => !prev);
-            };
-
-            // Function to handle sorting
-            const sortPlayListBy = (criteria) => {
-                setPlaylist(prevPlaylist => {
-                    const newPlaylist = [...prevPlaylist];
-                    newPlaylist.sort((a, b) => {
-                        let valA, valB;
-
-                        if (criteria === 'title') {
-                            valA = (a.name || '').toLowerCase();
-                            valB = (b.name || '').toLowerCase();
-                        } else if (criteria === 'artist') {
-                            valA = (a.name || '').toLowerCase(); // Placeholder, ideally use actual artist tag
-                            valB = (b.name || '').toLowerCase();
-                        } else if (criteria === 'dateAdded') {
-                            valA = a.lastModified;
-                            valB = b.lastModified;
-                        }
-
-                        if (valA < valB) return -1;
-                        if (valA > valB) return 1;
-                        return 0;
-                    });
-                    return newPlaylist;
-                });
-                setIsSortDropupOpen(false); // Close dropup after sorting
-            };
-
-            // Add an effect to close the dropup when clicking outside
-            useEffect(() => {
-                const handleClickOutside = (event) => {
-                    if (isSortDropupOpen && !event.target.closest('.dropup')) {
-                        setIsSortDropupOpen(false);
-                    }
-                };
-
-                const positionDropupMenu = () => {
-                    if (isSortDropupOpen && sortButtonRef.current && dropupMenuRef.current) {
-                        const buttonRect = sortButtonRef.current.getBoundingClientRect();
-                        const menuElement = dropupMenuRef.current;
-
-                        menuElement.style.top = `${buttonRect.top - menuElement.offsetHeight - 10}px`;
-                        menuElement.style.left = `${buttonRect.left}px`;
-                        menuElement.style.minWidth = `${buttonRect.width}px`;
-                    }
-                };
-
-                document.addEventListener('mousedown', handleClickOutside);
-                window.addEventListener('resize', positionDropupMenu);
-                window.addEventListener('scroll', positionDropupMenu);
-
-                if (isSortDropupOpen) {
-                    setTimeout(positionDropupMenu, 0);
-                }
-
-                return () => {
-                    document.removeEventListener('mousedown', handleClickOutside);
-                    window.removeEventListener('resize', positionDropupMenu);
-                    window.removeEventListener('scroll', positionDropupMenu);
-                };
-            }, [isSortDropupOpen]);
-
-            const handleSearchChange = (e) => {
-                setSearchQuery(e.target.value);
-            };
-
-            const shuffleArray = (array) => {
-                let currentIndex = array.length, randomIndex;
-                while (currentIndex !== 0) {
-                    randomIndex = Math.floor(Math.random() * currentIndex);
-                    currentIndex--;
-                    [array[currentIndex], array[randomIndex]] = [
-                        array[randomIndex], array[currentIndex]];
-                }
-                return array;
-            };
-
-            const toggleRepeat = () => {
-                setIsRepeating(prevRepeating => {
-                    const newRepeatingState = !prevRepeating;
-                    if (newRepeatingState) {
-                        setIsShuffling(false);
-                    }
-                    return newRepeatingState;
-                });
-            };
-
-            const toggleShuffle = () => {
-                setIsShuffling(prevShuffling => {
-                    const newShufflingState = !prevShuffling;
-                    if (newShufflingState) {
-                        setIsRepeating(false);
-                        setPlaylist(oldPlaylist => {
-                            const shuffledPlaylist = shuffleArray([...oldPlaylist]);
-                            if (currentSongIndex !== null && oldPlaylist.length > 0) {
-                                const currentSong = oldPlaylist[currentSongIndex];
-                                const newIndex = shuffledPlaylist.indexOf(currentSong);
-                                setCurrentSongIndex(newIndex);
-                            }
-                            return shuffledPlaylist;
-                        });
-                    }
-                    return newShufflingState;
-                });
-            };
-
-            const playNextSong = useCallback(() => {
-                if (playlist.length === 0) return;
-
-                const audio = audioRef.current;
-                if (!audio) return;
-
-                if (isRepeating && currentSongIndex !== null) {
-                    audio.currentTime = 0;
-                    audio.play().catch(e => console.error("Error playing repeated song:", e));
-                    return;
-                }
-
-                let nextIndex;
-                if (isShuffling) {
-                    if (playlist.length <= 1) {
-                        nextIndex = 0;
-                    } else {
-                        do {
-                            nextIndex = Math.floor(Math.random() * playlist.length);
-                        } while (nextIndex === currentSongIndex);
-                    }
-                } else {
-                    nextIndex = (currentSongIndex + 1) % playlist.length;
-                }
-                setCurrentSongIndex(nextIndex);
-                setIsPlaying(true);
-            }, [playlist, currentSongIndex, isRepeating, isShuffling]);
-
-            useEffect(() => {
-                const audio = audioRef.current;
-                if (!audio) return;
-
-                // Volume is now controlled by the gainNode, so remove direct audio.volume assignment here
-                // audio.volume = volume;
-
-                const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-                const handleLoadedMetadata = () => setDuration(audio.duration);
-                const handleEnded = playNextSong;
-
-                audio.addEventListener('timeupdate', handleTimeUpdate);
-                audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-                audio.addEventListener('ended', handleEnded);
-
-                return () => {
-                    audio.removeEventListener('timeupdate', handleTimeUpdate);
-                    audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-                    audio.removeEventListener('ended', handleEnded);
-                };
-            }, [playNextSong]); // Removed volume, as it's handled by a separate effect on gainNodeRef
-
-            useEffect(() => {
-                const audio = audioRef.current;
-                if (!audio) return;
-
-                if (currentObjectUrl.current) {
-                    URL.revokeObjectURL(currentObjectUrl.current);
-                    currentObjectUrl.current = null;
-                }
-
-                if (currentSongIndex !== null && playlist.length > 0 && playlist[currentSongIndex]) {
-                    const song = playlist[currentSongIndex];
-                    const newObjectUrl = URL.createObjectURL(song);
-                    audio.src = newObjectUrl;
-                    currentObjectUrl.current = newObjectUrl;
-                    audio.load();
-
-                    if (window.jsmediatags) {
-                        window.jsmediatags.read(song, {
-                            onSuccess: function (tag) {
-                                setSongTitle(tag.tags.title || song.name.split('.').slice(0, -1).join('.') || "Unknown Title");
-                                setSongArtist(tag.tags.artist || 'Unknown Artist');
-                                if (tag.tags.picture) {
-                                    const { data, format } = tag.tags.picture;
-                                    let base64String = "";
-                                    for (let i = 0; i < data.length; i++) {
-                                        base64String += String.fromCharCode(data[i]);
-                                    }
-                                    setAlbumArtUrl(`data:${format};base64,${window.btoa(base64String)}`);
-                                } else {
-                                    setAlbumArtUrl('https://placehold.co/200x200/bec8e4/9baacf?text=No+Art');
-                                }
-                            },
-                            onError: function (error) {
-                                console.error("Error reading tags for", song.name, error);
-                                setSongTitle(song.name.split('.').slice(0, -1).join('.') || "Unknown Title");
-                                setSongArtist('Unknown Artist');
-                                setAlbumArtUrl('https://placehold.co/200x200/bec8e4/9baacf?text=No+Art');
-                            }
-                        });
-                    } else {
-                        setSongTitle(song.name.split('.').slice(0, -1).join('.') || "Unknown Title");
-                        setSongArtist('Unknown Artist');
-                        setAlbumArtUrl('https://placehold.co/200x200/bec8e4/9baacf?text=No+Art');
-                    }
-
-                    // Ensure AudioContext is resumed before playing
-                    if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
-                        audioContextRef.current.resume().catch(e => console.error("Error resuming AudioContext on song change:", e));
-                    }
-
-                    if (isPlaying) {
-                        audio.play().catch(error => {
-                            console.error("Error playing song after index change:", error);
-                            setIsPlaying(false);
-                        });
-                    }
-                } else {
-                    audio.src = '';
-                    if (currentObjectUrl.current) {
-                        URL.revokeObjectURL(currentObjectUrl.current);
-                        currentObjectUrl.current = null;
-                    }
-                    setSongTitle('Tidak ada lagu yang sedang diputar');
-                    setSongArtist('');
-                    setAlbumArtUrl('https://placehold.co/200x200/bec8e4/9baacf?text=No+Art');
-                    setDuration(0);
-                    setCurrentTime(0);
-                    setIsPlaying(false);
-                }
-                return () => {
-                    if (currentObjectUrl.current) {
-                        URL.revokeObjectURL(currentObjectUrl.current);
-                        currentObjectUrl.current = null;
-                    }
-                };
-            }, [currentSongIndex, playlist, isPlaying]); // isPlaying is still a dependency here because it dictates whether to attempt play
-
-            useEffect(() => {
-                const audio = audioRef.current;
-                if (!audio || !audio.src || currentSongIndex === null) {
-                    if (isPlaying) setIsPlaying(false);
-                    return;
-                }
-
-                // Attempt to resume AudioContext on play/pause interaction
-                if (isPlaying && audioContextRef.current && audioContextRef.current.state === 'suspended') {
-                    audioContextRef.current.resume().catch(e => console.error("Error resuming AudioContext on play:", e));
-                }
-
-                if (isPlaying) {
-                    audio.play().catch(error => {
-                        console.error("Autoplay prevented in isPlaying useEffect:", error);
-                        setIsPlaying(false);
-                    });
-                } else {
-                    audio.pause();
-                }
-            }, [isPlaying]);
-
-            const handleFileChange = (event) => {
-                const files = Array.from(event.target.files);
-                const audioFiles = files.filter(file =>
-                    file.type.startsWith('audio/') || /\.(mp3|wav|ogg|flac)$/i.test(file.name)
+      const { useState, useRef, useEffect, useCallback } = React;
+
+      // --- CUSTOM HOOK: useMarquee ---
+      const useMarquee = (text, targetRef, gapPixels = 30, speed = 30) => {
+        const [isOverflowing, setIsOverflowing] = useState(false);
+
+        useEffect(() => {
+          const checkOverflowAndSetMarquee = () => {
+            if (targetRef.current) {
+              const tempSpan = document.createElement("span");
+              tempSpan.style.visibility = "hidden";
+              tempSpan.style.position = "absolute";
+              tempSpan.style.whiteSpace = "nowrap";
+
+              const computedStyle = getComputedStyle(targetRef.current);
+              tempSpan.style.fontSize = computedStyle.fontSize;
+              tempSpan.style.fontFamily = computedStyle.fontFamily;
+              tempSpan.style.fontWeight = computedStyle.fontWeight;
+              tempSpan.style.letterSpacing = computedStyle.letterSpacing;
+              tempSpan.textContent = text;
+
+              document.body.appendChild(tempSpan);
+              const singleTextWidth = tempSpan.scrollWidth;
+              document.body.removeChild(tempSpan);
+
+              const containerWidth = targetRef.current.clientWidth;
+              const overflows = singleTextWidth > containerWidth;
+
+              setIsOverflowing(overflows);
+
+              if (overflows) {
+                const distanceToScroll = singleTextWidth + gapPixels;
+                const duration = distanceToScroll / speed;
+                targetRef.current.style.setProperty(
+                  "--marquee-duration",
+                  `${duration}s`
                 );
+                targetRef.current.style.setProperty(
+                  "--marquee-distance",
+                  `-${distanceToScroll}px`
+                );
+              } else {
+                targetRef.current.style.setProperty("--marquee-duration", "0s");
+                targetRef.current.style.setProperty(
+                  "--marquee-distance",
+                  "0px"
+                );
+              }
+            }
+          };
 
-                if (isShuffling && audioFiles.length > 0) {
-                    const newShuffledFiles = shuffleArray(audioFiles);
-                    setPlaylist(newShuffledFiles);
-                    if (newShuffledFiles.length > 0 && currentSongIndex === null) {
-                        setCurrentSongIndex(0);
-                    } else if (newShuffledFiles.length === 0) {
-                        setCurrentSongIndex(null);
+          const timeoutId = setTimeout(checkOverflowAndSetMarquee, 50);
+          window.addEventListener("resize", checkOverflowAndSetMarquee);
+
+          return () => {
+            clearTimeout(timeoutId);
+            window.removeEventListener("resize", checkOverflowAndSetMarquee);
+          };
+        }, [text, targetRef, gapPixels, speed]);
+
+        return { isOverflowing };
+      };
+      // --- END CUSTOM HOOK ---
+
+      function App() {
+        // State Variables
+        const [playlist, setPlaylist] = useState([]);
+        const [currentSongIndex, setCurrentSongIndex] = useState(null);
+        const [isPlaying, setIsPlaying] = useState(false);
+        const [isRepeating, setIsRepeating] = useState(false);
+        const [isShuffling, setIsShuffling] = useState(false);
+        const [albumArtUrl, setAlbumArtUrl] = useState(
+          "https://placehold.co/200x200/bec8e4/9baacf?text=No+Art"
+        );
+        const [songTitle, setSongTitle] = useState(
+          "Tidak ada lagu yang sedang diputar"
+        );
+        const [songArtist, setSongArtist] = useState("");
+        const [currentTime, setCurrentTime] = useState(0);
+        const [duration, setDuration] = useState(0);
+        const [volume, setVolume] = useState(0.8);
+        const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+        const [isEQSidebarOpen, setIsEQSidebarOpen] = useState(false);
+        const [isSortDropupOpen, setIsSortDropupOpen] = useState(false);
+        const [isSearchActive, setIsSearchActive] = useState(false);
+        const [searchQuery, setSearchQuery] = useState("");
+
+        // NEW: State for EQ settings
+        const [eqSettings, setEqSettings] = useState({
+          low: 0, // Typically around 60-250 Hz for bass
+          mid: 0, // Typically around 500-2000 Hz for mids
+          high: 0, // Typically around 2000-8000 Hz for treble
+        });
+
+        // Refs
+        const audioRef = useRef(null);
+        const fileInputRef = useRef(null);
+        const currentObjectUrl = useRef(null);
+        const sortButtonRef = useRef(null);
+        const dropupMenuRef = useRef(null);
+        const titleRef = useRef(null);
+        const artistRef = useRef(null);
+
+        // NEW: Refs for Web Audio API nodes to persist them across renders
+        const audioContextRef = useRef(null);
+        const sourceNodeRef = useRef(null);
+        const gainNodeRef = useRef(null); // Master gain for overall volume control
+        const lowShelfFilterRef = useRef(null);
+        const peakingFilterRef = useRef(null);
+        const highShelfFilterRef = useRef(null);
+
+        // Derived States/Custom Hooks
+        const gapPixels = 30;
+        // Assuming useMarquee hook exists and works as intended
+        const { isOverflowing: isTitleOverflowing } = { isOverflowing: false }; // Placeholder if useMarquee isn't provided
+        const { isOverflowing: isArtistOverflowing } = { isOverflowing: false }; // Placeholder if useMarquee isn't provided
+
+        const filteredPlaylist = playlist.filter((song) =>
+          song.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+        // Add this function
+        const toggleEQSidebar = () => {
+          setIsEQSidebarOpen((prevState) => !prevState);
+          setIsSidebarOpen(false); // Ensure playlist sidebar is closed when EQ opens
+          // Attempt to resume audio context when EQ sidebar is opened, as it's a user interaction
+          if (
+            !isEQSidebarOpen &&
+            audioContextRef.current &&
+            audioContextRef.current.state === "suspended"
+          ) {
+            audioContextRef.current
+              .resume()
+              .catch((e) => console.error("Error resuming AudioContext:", e));
+          }
+        };
+
+        // NEW: Handler for EQ slider changes
+        const handleEQChange = useCallback((band, value) => {
+          setEqSettings((prevSettings) => ({
+            ...prevSettings,
+            [band]: parseFloat(value), // Ensure value is a number
+          }));
+        }, []);
+
+        // Initial setup of Web Audio API
+        useEffect(() => {
+          const audio = audioRef.current;
+          if (!audio) return;
+
+          if (!audioContextRef.current) {
+            audioContextRef.current = new (window.AudioContext ||
+              window.webkitAudioContext)();
+          }
+          const audioContext = audioContextRef.current;
+
+          // Create source node if it doesn't exist
+          if (!sourceNodeRef.current) {
+            sourceNodeRef.current =
+              audioContext.createMediaElementSource(audio);
+          }
+
+          // Create master gain node (for your `volume` state)
+          if (!gainNodeRef.current) {
+            gainNodeRef.current = audioContext.createGain();
+            gainNodeRef.current.gain.value = volume; // Initialize with current volume
+          }
+
+          // Create EQ filter nodes if they don't exist
+          if (!lowShelfFilterRef.current) {
+            lowShelfFilterRef.current = audioContext.createBiquadFilter();
+            lowShelfFilterRef.current.type = "lowshelf";
+            lowShelfFilterRef.current.frequency.value = 250; // Bass frequency
+            lowShelfFilterRef.current.Q.value = 1; // Q factor for the filter
+          }
+
+          if (!peakingFilterRef.current) {
+            peakingFilterRef.current = audioContext.createBiquadFilter();
+            peakingFilterRef.current.type = "peaking";
+            peakingFilterRef.current.frequency.value = 1500; // Mid frequency
+            peakingFilterRef.current.Q.value = 1; // Q factor for the filter
+          }
+
+          if (!highShelfFilterRef.current) {
+            highShelfFilterRef.current = audioContext.createBiquadFilter();
+            highShelfFilterRef.current.type = "highshelf";
+            highShelfFilterRef.current.frequency.value = 4000; // Treble frequency
+            highShelfFilterRef.current.Q.value = 1; // Q factor for the filter
+          }
+
+          // Connect the audio graph (do this once)
+          // Source -> Gain -> LowShelf -> Peaking -> HighShelf -> Destination
+          sourceNodeRef.current.disconnect(); // Disconnect existing connections to prevent multiple connections
+          gainNodeRef.current.disconnect();
+          lowShelfFilterRef.current.disconnect();
+          peakingFilterRef.current.disconnect();
+          highShelfFilterRef.current.disconnect();
+
+          sourceNodeRef.current.connect(gainNodeRef.current);
+          gainNodeRef.current.connect(lowShelfFilterRef.current);
+          lowShelfFilterRef.current.connect(peakingFilterRef.current);
+          peakingFilterRef.current.connect(highShelfFilterRef.current);
+          highShelfFilterRef.current.connect(audioContext.destination);
+
+          // Cleanup: On unmount, disconnect and close audio context
+          return () => {
+            if (sourceNodeRef.current) sourceNodeRef.current.disconnect();
+            if (gainNodeRef.current) gainNodeRef.current.disconnect();
+            if (lowShelfFilterRef.current)
+              lowShelfFilterRef.current.disconnect();
+            if (peakingFilterRef.current) peakingFilterRef.current.disconnect();
+            if (highShelfFilterRef.current)
+              highShelfFilterRef.current.disconnect();
+          };
+        }, []); // Empty dependency array means this runs once on mount
+
+        // Effect to update EQ filter gains when eqSettings change
+        useEffect(() => {
+          if (
+            !lowShelfFilterRef.current ||
+            !peakingFilterRef.current ||
+            !highShelfFilterRef.current
+          )
+            return;
+
+          lowShelfFilterRef.current.gain.value = eqSettings.low;
+          peakingFilterRef.current.gain.value = eqSettings.mid;
+          highShelfFilterRef.current.gain.value = eqSettings.high;
+        }, [eqSettings]); // This effect runs whenever eqSettings change
+
+        // Effect to update master volume gain when volume state changes
+        useEffect(() => {
+          if (gainNodeRef.current) {
+            gainNodeRef.current.gain.value = volume;
+          }
+        }, [volume]);
+
+        const handleSearchClick = () => {
+          setIsSearchActive((prev) => !prev);
+          if (isSearchActive) {
+            setSearchQuery("");
+          }
+        };
+
+        // Function to toggle the dropup menu
+        const toggleSortDropup = () => {
+          setIsSortDropupOpen((prev) => !prev);
+        };
+
+        // Function to handle sorting
+        const sortPlayListBy = (criteria) => {
+          setPlaylist((prevPlaylist) => {
+            const newPlaylist = [...prevPlaylist];
+            newPlaylist.sort((a, b) => {
+              let valA, valB;
+
+              if (criteria === "title") {
+                valA = (a.name || "").toLowerCase();
+                valB = (b.name || "").toLowerCase();
+              } else if (criteria === "artist") {
+                valA = (a.name || "").toLowerCase(); // Placeholder, ideally use actual artist tag
+                valB = (b.name || "").toLowerCase();
+              } else if (criteria === "dateAdded") {
+                valA = a.lastModified;
+                valB = b.lastModified;
+              }
+
+              if (valA < valB) return -1;
+              if (valA > valB) return 1;
+              return 0;
+            });
+            return newPlaylist;
+          });
+          setIsSortDropupOpen(false); // Close dropup after sorting
+        };
+
+        // Add an effect to close the dropup when clicking outside
+        useEffect(() => {
+          const handleClickOutside = (event) => {
+            if (isSortDropupOpen && !event.target.closest(".dropup")) {
+              setIsSortDropupOpen(false);
+            }
+          };
+
+          const positionDropupMenu = () => {
+            if (
+              isSortDropupOpen &&
+              sortButtonRef.current &&
+              dropupMenuRef.current
+            ) {
+              const buttonRect = sortButtonRef.current.getBoundingClientRect();
+              const menuElement = dropupMenuRef.current;
+
+              menuElement.style.top = `${
+                buttonRect.top - menuElement.offsetHeight - 10
+              }px`;
+              menuElement.style.left = `${buttonRect.left}px`;
+              menuElement.style.minWidth = `${buttonRect.width}px`;
+            }
+          };
+
+          document.addEventListener("mousedown", handleClickOutside);
+          window.addEventListener("resize", positionDropupMenu);
+          window.addEventListener("scroll", positionDropupMenu);
+
+          if (isSortDropupOpen) {
+            setTimeout(positionDropupMenu, 0);
+          }
+
+          return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            window.removeEventListener("resize", positionDropupMenu);
+            window.removeEventListener("scroll", positionDropupMenu);
+          };
+        }, [isSortDropupOpen]);
+
+        const handleSearchChange = (e) => {
+          setSearchQuery(e.target.value);
+        };
+
+        const shuffleArray = (array) => {
+          let currentIndex = array.length,
+            randomIndex;
+          while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [
+              array[randomIndex],
+              array[currentIndex],
+            ];
+          }
+          return array;
+        };
+
+        const toggleRepeat = () => {
+          setIsRepeating((prevRepeating) => {
+            const newRepeatingState = !prevRepeating;
+            if (newRepeatingState) {
+              setIsShuffling(false);
+            }
+            return newRepeatingState;
+          });
+        };
+
+        const toggleShuffle = () => {
+          setIsShuffling((prevShuffling) => {
+            const newShufflingState = !prevShuffling;
+            if (newShufflingState) {
+              setIsRepeating(false);
+              setPlaylist((oldPlaylist) => {
+                const shuffledPlaylist = shuffleArray([...oldPlaylist]);
+                if (currentSongIndex !== null && oldPlaylist.length > 0) {
+                  const currentSong = oldPlaylist[currentSongIndex];
+                  const newIndex = shuffledPlaylist.indexOf(currentSong);
+                  setCurrentSongIndex(newIndex);
+                }
+                return shuffledPlaylist;
+              });
+            }
+            return newShufflingState;
+          });
+        };
+
+        const playNextSong = useCallback(() => {
+          if (playlist.length === 0) return;
+
+          const audio = audioRef.current;
+          if (!audio) return;
+
+          if (isRepeating && currentSongIndex !== null) {
+            audio.currentTime = 0;
+            audio
+              .play()
+              .catch((e) => console.error("Error playing repeated song:", e));
+            return;
+          }
+
+          let nextIndex;
+          if (isShuffling) {
+            if (playlist.length <= 1) {
+              nextIndex = 0;
+            } else {
+              do {
+                nextIndex = Math.floor(Math.random() * playlist.length);
+              } while (nextIndex === currentSongIndex);
+            }
+          } else {
+            nextIndex = (currentSongIndex + 1) % playlist.length;
+          }
+          setCurrentSongIndex(nextIndex);
+          setIsPlaying(true);
+        }, [playlist, currentSongIndex, isRepeating, isShuffling]);
+
+        useEffect(() => {
+          const audio = audioRef.current;
+          if (!audio) return;
+
+          const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+          const handleLoadedMetadata = () => setDuration(audio.duration);
+          const handleEnded = playNextSong;
+
+          audio.addEventListener("timeupdate", handleTimeUpdate);
+          audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+          audio.addEventListener("ended", handleEnded);
+
+          return () => {
+            audio.removeEventListener("timeupdate", handleTimeUpdate);
+            audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+            audio.removeEventListener("ended", handleEnded);
+          };
+        }, [playNextSong]); // Removed volume, as it's handled by a separate effect on gainNodeRef
+
+        // *** MODIFIED useEffect for loading song when currentSongIndex changes ***
+        useEffect(() => {
+          const audio = audioRef.current;
+          if (!audio) return;
+
+          // Revoke previous URL if exists
+          if (currentObjectUrl.current) {
+            URL.revokeObjectURL(currentObjectUrl.current);
+            currentObjectUrl.current = null;
+          }
+
+          if (
+            currentSongIndex !== null &&
+            playlist.length > 0 &&
+            playlist[currentSongIndex]
+          ) {
+            const song = playlist[currentSongIndex];
+            const newObjectUrl = URL.createObjectURL(song);
+            audio.src = newObjectUrl;
+            currentObjectUrl.current = newObjectUrl;
+            audio.load(); // Load the new source
+
+            if (window.jsmediatags) {
+              window.jsmediatags.read(song, {
+                onSuccess: function (tag) {
+                  setSongTitle(
+                    tag.tags.title ||
+                      song.name.split(".").slice(0, -1).join(".") ||
+                      "Unknown Title"
+                  );
+                  setSongArtist(tag.tags.artist || "Unknown Artist");
+                  if (tag.tags.picture) {
+                    const { data, format } = tag.tags.picture;
+                    let base64String = "";
+                    for (let i = 0; i < data.length; i++) {
+                      base64String += String.fromCharCode(data[i]);
                     }
-                } else {
-                    setPlaylist(audioFiles);
-                    if (audioFiles.length > 0 && currentSongIndex === null) {
-                        setCurrentSongIndex(0);
-                    } else if (audioFiles.length === 0) {
-                        setCurrentSongIndex(null);
-                    }
-                }
-            };
+                    setAlbumArtUrl(
+                      `data:${format};base64,${window.btoa(base64String)}`
+                    );
+                  } else {
+                    setAlbumArtUrl(
+                      "https://placehold.co/200x200/bec8e4/9baacf?text=No+Art"
+                    );
+                  }
+                },
+                onError: function (error) {
+                  console.error("Error reading tags for", song.name, error);
+                  setSongTitle(
+                    song.name.split(".").slice(0, -1).join(".") ||
+                      "Unknown Title"
+                  );
+                  setSongArtist("Unknown Artist");
+                  setAlbumArtUrl(
+                    "https://placehold.co/200x200/bec8e4/9baacf?text=No+Art"
+                  );
+                },
+              });
+            } else {
+              setSongTitle(
+                song.name.split(".").slice(0, -1).join(".") || "Unknown Title"
+              );
+              setSongArtist("Unknown Artist");
+              setAlbumArtUrl(
+                "https://placehold.co/200x200/bec8e4/9baacf?text=No+Art"
+              );
+            }
 
-            const openFolder = () => fileInputRef.current.click();
+            // No immediate play here, play/pause handled by separate isPlaying effect
+            // Ensure AudioContext is resumed before playing, if it was suspended
+            if (
+              audioContextRef.current &&
+              audioContextRef.current.state === "suspended"
+            ) {
+              audioContextRef.current
+                .resume()
+                .catch((e) =>
+                  console.error(
+                    "Error resuming AudioContext on song change:",
+                    e
+                  )
+                );
+            }
 
-            const openSingleFile = () => {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'audio/*, .mp3, .wav, .ogg, .flac';
-                input.onchange = (event) => {
-                    const file = event.target.files[0];
-                    if (file) {
-                        setPlaylist((prevPlaylist) => {
-                            const newPlaylist = [...prevPlaylist, file];
-                            if (isShuffling) {
-                                const shuffledFullPlaylist = shuffleArray(newPlaylist);
-                                if (currentSongIndex === null && shuffledFullPlaylist.length === 1) {
-                                    setCurrentSongIndex(0);
-                                } else if (shuffledFullPlaylist.length > 0 && !isPlaying) {
-                                    // Logic for handling added file in shuffled playlist
-                                }
-                                return shuffledFullPlaylist;
-                            }
-
-                            if (currentSongIndex === null && newPlaylist.length === 1) {
-                                setCurrentSongIndex(0);
-                            }
-                            return newPlaylist;
-                        });
-                    }
-                };
-                input.click();
-            };
-
-            const togglePlayPause = () => {
-                if (playlist.length === 0) return;
-
-                // Ensure AudioContext is resumed on user interaction (play/pause click)
-                if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
-                    audioContextRef.current.resume().catch(e => console.error("Error resuming AudioContext on play/pause:", e));
-                }
-
-                if (currentSongIndex === null && playlist.length > 0) {
-                    setCurrentSongIndex(0);
-                    setIsPlaying(true);
-                } else {
-                    setIsPlaying(!isPlaying);
-                }
-            };
-
-            const playSong = (indexInFiltered) => {
-                const actualIndex = playlist.indexOf(filteredPlaylist[indexInFiltered]);
-                if (actualIndex === -1) return;
-
-                // Ensure AudioContext is resumed on user interaction (playlist item click)
-                if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
-                    audioContextRef.current.resume().catch(e => console.error("Error resuming AudioContext on playlist item click:", e));
-                }
-
-                if (actualIndex !== currentSongIndex) {
-                    setCurrentSongIndex(actualIndex);
-                    setIsPlaying(true);
-                } else {
-                    setIsPlaying(!isPlaying);
-                }
-            };
-
-            const playPreviousSong = () => {
-                if (playlist.length === 0) return;
-                let prevIndex;
-                if (isShuffling) {
-                    if (playlist.length <= 1) {
-                        prevIndex = 0;
-                    } else {
-                        do {
-                            prevIndex = Math.floor(Math.random() * playlist.length);
-                        } while (prevIndex === currentSongIndex);
-                    }
-                } else {
-                    prevIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
-                }
-                setCurrentSongIndex(prevIndex);
-                setIsPlaying(true);
-            };
-
-            const handleProgressBarChange = (e) => {
-                const audio = audioRef.current;
-                if (audio) {
-                    audio.currentTime = e.target.value;
-                    setCurrentTime(e.target.value);
-                }
-            };
-
-            const handleVolumeChange = (e) => {
-                const newVolume = parseFloat(e.target.value);
-                setVolume(newVolume);
-                // Volume is now controlled by the gainNode in the Web Audio API graph
-                // if (audioRef.current) {
-                //     audioRef.current.volume = newVolume;
-                // }
-            };
-
-            const formatTime = (seconds) => {
-                if (isNaN(seconds) || seconds < 0) return '0:00';
-                const minutes = Math.floor(seconds / 60);
-                const remainingSeconds = Math.floor(seconds % 60);
-                return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-            };
-
-            const toggleSidebar = () => {
-                setIsSidebarOpen(prevState => !prevState);
-                setIsEQSidebarOpen(false); // Ensure EQ sidebar is closed when playlist opens
-            };
-
-            const handleCloseBothSidebars = () => {
-                setIsSidebarOpen(false);
-                setIsEQSidebarOpen(false);
-            };
-
-            const handleDeleteSong = (indexToDeleteInOriginal, event) => {
-                event.stopPropagation();
-                setPlaylist(prevPlaylist => {
-                    const newPlaylist = prevPlaylist.filter((_, idx) => idx !== indexToDeleteInOriginal);
-
-                    let newCurrentSongIndex = currentSongIndex;
-                    let shouldStopPlaying = false;
-
-                    if (newPlaylist.length === 0) {
-                        newCurrentSongIndex = null;
-                        shouldStopPlaying = true;
-                    } else if (currentSongIndex === indexToDeleteInOriginal) {
-                        newCurrentSongIndex = (indexToDeleteInOriginal >= newPlaylist.length) ? 0 : indexToDeleteInOriginal;
-                    } else if (currentSongIndex > indexToDeleteInOriginal) {
-                        newCurrentSongIndex = currentSongIndex - 1;
-                    }
-
-                    setCurrentSongIndex(newCurrentSongIndex);
-                    if (shouldStopPlaying) {
-                        setIsPlaying(false);
-                    }
-                    return newPlaylist;
+            // Only attempt to play if isPlaying is true and the audio is ready
+            audio.oncanplaythrough = () => {
+              if (isPlaying) {
+                audio.play().catch((error) => {
+                  console.error(
+                    "Autoplay prevented after source change:",
+                    error
+                  );
+                  setIsPlaying(false);
                 });
+              }
             };
-
-            const clearPlayList = () => {
-                if (audioRef.current) {
-                    audioRef.current.pause();
-                    audioRef.current.src = '';
-                }
-                if (currentObjectUrl.current) {
-                    URL.revokeObjectURL(currentObjectUrl.current);
-                    currentObjectUrl.current = null;
-                }
-                setPlaylist([]);
-                setCurrentSongIndex(null);
-                setIsPlaying(false);
-                setSongTitle('Tidak ada lagu yang sedang diputar');
-                setSongArtist('');
-                setAlbumArtUrl('https://placehold.co/200x200/bec8e4/9baacf?text=No+Art');
-                setDuration(0);
-                setCurrentTime(0);
-                setSearchQuery('');
-                setIsRepeating(false);
-                setIsShuffling(false);
-                if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                }
-
-                // Reset EQ settings to default (flat)
-                setEqSettings({ low: 0, mid: 0, high: 0 });
-            };
-
-            return (
-                <div className="container">
-                    {/* Combined Sidebar Card */}
-                    <div className={`playlist-card ${isSidebarOpen || isEQSidebarOpen ? 'open' : 'collapsed'}`}>
-                        <div className="playlist-header">
-                            {/* Display header based on which sidebar is open, or default to Playlist if neither is explicitly open but the main sidebar is expanded */}
-                            {isSidebarOpen && <h3>Playlist</h3>}
-                            {isEQSidebarOpen && <h3>Equalizer</h3>}
-
-                            <div className="header-buttons-group">
-                                {/* Show search button only if playlist sidebar is open */}
-                                {isSidebarOpen && (
-                                    <button className="search-toggle-btn" onClick={handleSearchClick} aria-label="Search Playlist">
-                                        <i className="fas fa-search"></i>
-                                    </button>
-                                )}
-                                {/* Toggle button for the main playlist sidebar */}
-                                <button
-                                    className="sidebar-toggle-btn"
-                                    onClick={
-                                        isSidebarOpen || isEQSidebarOpen
-                                            ? handleCloseBothSidebars // If either is open, this button closes both
-                                            : toggleSidebar // Otherwise, it opens the playlist sidebar
-                                    }
-                                    aria-label={
-                                        isSidebarOpen || isEQSidebarOpen
-                                            ? "Close Sidebars" // Label for closing both
-                                            : "Open Playlist" // Label for opening playlist
-                                    }
-                                >
-                                    <i className={`fas ${isSidebarOpen || isEQSidebarOpen ? 'fa-times' : 'fa-bars'}`}></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Toggle button for the equalizer sidebar, visible when the main sidebar is open (to switch to EQ) or when both are collapsed (to open EQ) */}
-                        {(!isSidebarOpen && !isEQSidebarOpen) && (
-                            <button
-                                className={`sidebar-toggle-btn mt-3 ${isEQSidebarOpen ? 'eq-button-hidden' : ''}`}
-                                aria-label="Open Equalizer" onClick={toggleEQSidebar}
-                            >
-                                <i className="fas fa-sliders" aria-hidden="true"></i>
-                            </button>
-                        )}
-
-                        {/* Content for Playlist */}
-                        {isSidebarOpen && !isEQSidebarOpen && (
-                            <>
-                                {isSearchActive && (
-                                    <div className="search-input-container">
-                                        <input
-                                            type="text"
-                                            placeholder="Cari lagu..."
-                                            value={searchQuery}
-                                            onChange={handleSearchChange}
-                                            className="search-input"
-                                        />
-                                    </div>
-                                )}
-                                <ul className="playlist-list">
-                                    {filteredPlaylist.length === 0 && searchQuery !== '' ? (
-                                        <li className="playlist-empty">No matching songs found.</li>
-                                    ) : filteredPlaylist.length === 0 && playlist.length > 0 && searchQuery === '' ? (
-                                        <li className="playlist-empty">Belum ada lagu yang ditambahkan.</li>
-                                    ) : playlist.length === 0 ? (
-                                        <li className="playlist-empty">Belum ada lagu yang ditambahkan.</li>
-                                    ) : (
-                                        filteredPlaylist.map((song, index) => (
-                                            <li
-                                                key={song.name + index + (playlist.indexOf(song))}
-                                                className={`playlist-item ${song === playlist[currentSongIndex] ? 'active' : ''}`}
-                                            >
-                                                <div className="playlist-item-inner" onClick={() => playSong(index)}>
-                                                    <span className="playlist-song-name">
-                                                        {song.name.split('.').slice(0, -1).join('.') || song.name}
-                                                    </span>
-                                                    <button
-                                                        className="btn btn__delete"
-                                                        onClick={(e) => handleDeleteSong(playlist.indexOf(song), e)}
-                                                        aria-label={`Delete ${song.name}`}
-                                                    >
-                                                        <i className="fas fa-trash-alt"></i>
-                                                    </button>
-                                                </div>
-                                            </li>
-                                        ))
-                                    )}
-                                </ul>
-                                <div className="button-container-flex" style={{ marginTop: 'auto', paddingTop: '1.5rem' }}>
-                                    <button className="btn btn-pl btn__secondary" onClick={openFolder} title="Buka Folder">
-                                        <i className="fas fa-folder"></i>
-                                    </button>
-                                    <button className="btn btn-pl btn__secondary" onClick={openSingleFile} title="Tambahkan File ke Playlist">
-                                        <i className="fas fa-file-audio"></i>
-                                    </button>
-                                    <button className="btn btn-pl btn__secondary" onClick={clearPlayList} title="Bersihkan Playlist">
-                                        <i className="fas fa-trash"></i>
-                                    </button>
-                                    <div className="dropup-container-absolute">
-                                        <div className="dropup">
-                                            <button className="btn btn-pl btn__secondary dropup-toggle" onClick={toggleSortDropup} title="Urutkan Playlist berdasarkan..." ref={sortButtonRef}>
-                                                <i className="fa-solid fa-sort"></i>
-                                            </button>
-                                            {isSortDropupOpen && (
-                                                <div className="dropup-menu" ref={dropupMenuRef} style={{ position: 'fixed', zIndex: 1000 }}>
-                                                    <button className="dropup-item" onClick={() => sortPlayListBy('title')}>Judul</button>
-                                                    <button className="dropup-item" onClick={() => sortPlayListBy('artist')}>Artist</button>
-                                                    <button className="dropup-item" onClick={() => sortPlayListBy('dateAdded')}>Tanggal</button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <button className="btn btn-pl btn__secondary" title="Pengaturan">
-                                        <i className="fa-solid fa-gear"></i>
-                                    </button>
-                                </div>
-                            </>
-                        )}
-
-                        {/* Content for Equalizer */}
-                        {isEQSidebarOpen && !isSidebarOpen && (
-                            <div className="eq-controls">
-                                <div className="eq-band">
-                                    <label>Bass</label>
-                                    <input
-                                        type="range"
-                                        min="-12"
-                                        max="12"
-                                        value={eqSettings.low} // Changed from bass to low
-                                        onChange={(e) => handleEQChange('low', e.target.value)} // Using handleEQChange
-                                        className="eq-slider"
-                                    />
-                                    <span>{eqSettings.low}dB</span> {/* Changed from bass to low */}
-                                </div>
-                                <div className="eq-band">
-                                    <label>Mid</label>
-                                    <input
-                                        type="range"
-                                        min="-12"
-                                        max="12"
-                                        value={eqSettings.mid}
-                                        onChange={(e) => handleEQChange('mid', e.target.value)}
-                                        className="eq-slider"
-                                    />
-                                    <span>{eqSettings.mid}dB</span>
-                                </div>
-                                <div className="eq-band">
-                                    <label>Treble</label>
-                                    <input
-                                        type="range"
-                                        min="-12"
-                                        max="12"
-                                        value={eqSettings.high} // Changed from treble to high
-                                        onChange={(e) => handleEQChange('high', e.target.value)} // Using handleEQChange
-                                        className="eq-slider"
-                                    />
-                                    <span>{eqSettings.high}dB</span> {/* Changed from treble to high */}
-                                </div>
-                                <button
-                                    className="btn btn-pl btn__secondary"
-                                    onClick={() => setEqSettings({ low: 0, mid: 0, high: 0 })} // Changed bass/treble to low/high
-                                    style={{ marginTop: '1rem' }}
-                                >
-                                    Reset EQ
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Logo for collapsed state - always rendered, CSS controls visibility */}
-                        {(!isSidebarOpen && !isEQSidebarOpen) && (
-                            <div className="playlist-card-logo mb-3 font-weight-bold">Kyrop
-                                <i className="fas fa-compact-disc"></i>d {/* Example logo icon */}
-                            </div>
-                        )}
-
-                        {/* File input (always present but hidden) */}
-                        <input
-                            type="file"
-                            webkitdirectory=""
-                            directory=""
-                            multiple=""
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                            style={{ display: 'none' }}
-                            accept="audio/*,.mp3,.wav,.ogg,.flac"
-                        />
-                    </div>
-
-                    {/* Main Player Card */}
-                    <div className="player-card">
-                        <div className="album-art-wrapper">
-                            <img src={albumArtUrl} alt="Album Art" className="album-art" onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = 'https://placehold.co/200x200/bec8e4/9baacf?text=No+Art';
-                            }} />
-                        </div>
-                        <div className="song-info">
-                            <h2
-                                className={`song-title ${isTitleOverflowing ? 'is-scrolling' : ''}`}
-                                ref={titleRef}
-                                title={songTitle}
-                            >
-                                <span>
-                                    {songTitle}
-                                    {isTitleOverflowing && (
-                                        <>
-                                            <span className="inline-block" style={{ width: `${gapPixels}px`, display: 'inline-block' }}></span>
-                                            {songTitle}
-                                        </>
-                                    )}
-                                </span>
-                            </h2>
-                            <p
-                                className={`song-artist ${isArtistOverflowing ? 'is-scrolling-artist' : ''}`}
-                                ref={artistRef}
-                                title={songArtist}
-                            >
-                                <span>
-                                    {songArtist}
-                                    {isArtistOverflowing && (
-                                        <>
-                                            <span className="inline-block" style={{ width: `${gapPixels}px`, display: 'inline-block' }}></span>
-                                            {songArtist}
-                                        </>
-                                    )}
-                                </span>
-                            </p>
-                        </div>
-
-                        <div className="controls-wrapper">
-                            <div className="progress-bar-container">
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max={duration || 0}
-                                    value={currentTime}
-                                    onChange={handleProgressBarChange}
-                                    className="progress-slider"
-                                    disabled={playlist.length === 0}
-                                />
-                                <div className="time-display">
-                                    <span>{formatTime(currentTime)}</span>
-                                    <span>{formatTime(duration)}</span>
-                                </div>
-                            </div>
-
-                            <div className="player-buttons">
-                                <button
-                                    className={`icon__repeat ${isRepeating ? 'active' : ''}`}
-                                    onClick={toggleRepeat} // MODIFIED: Uses updated toggleRepeat
-                                    aria-label="Repeat Song"
-                                    disabled={playlist.length === 0}
-                                >
-                                    <i className="fas fa-redo"></i>
-                                </button>
-                                <button className="icon__prev" onClick={playPreviousSong} aria-label="Previous Song" disabled={playlist.length === 0}>
-                                    <i className="fas fa-step-backward"></i>
-                                </button>
-                                <div className="circle">
-                                    <button className={`circle__btn ${isPlaying ? 'shadow' : ''}`} onClick={togglePlayPause} aria-label={isPlaying ? "Pause" : "Play"} disabled={playlist.length === 0}>
-                                        <i className="fas fa-play"></i>
-                                        <i className="fas fa-pause"></i>
-                                    </button>
-                                    <div className={`circle__back-1 ${isPlaying && playlist.length > 0 ? '' : 'paused'}`}></div>
-                                    <div className={`circle__back-2 ${isPlaying && playlist.length > 0 ? '' : 'paused'}`}></div>
-                                </div>
-                                <button className="icon__next" onClick={playNextSong} aria-label="Next Song" disabled={playlist.length === 0}>
-                                    <i className="fas fa-step-forward"></i>
-                                </button>
-                                <button
-                                    className={`icon__shuffle ${isShuffling ? 'active' : ''}`}
-                                    onClick={toggleShuffle} // MODIFIED: Uses updated toggleShuffle
-                                    aria-label="Shuffle Playlist"
-                                    disabled={playlist.length === 0}
-                                >
-                                    <i className="fas fa-random"></i>
-                                </button>
-                            </div>
-
-                            <div className="volume-control">
-                                <i className="fas fa-volume-down"></i>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="1"
-                                    step="0.01"
-                                    value={volume}
-                                    onChange={handleVolumeChange}
-                                    className="volume-slider"
-                                    aria-label="Volume Slider"
-                                    disabled={playlist.length === 0}
-                                />
-                                <i className="fas fa-volume-up"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <audio ref={audioRef} preload="metadata"></audio>
-                </div>
+          } else {
+            audio.src = "";
+            if (currentObjectUrl.current) {
+              URL.revokeObjectURL(currentObjectUrl.current);
+              currentObjectUrl.current = null;
+            }
+            setSongTitle("Tidak ada lagu yang sedang diputar");
+            setSongArtist("");
+            setAlbumArtUrl(
+              "https://placehold.co/200x200/bec8e4/9baacf?text=No+Art"
             );
-        }
+            setDuration(0);
+            setCurrentTime(0);
+            setIsPlaying(false);
+          }
+          return () => {
+            if (currentObjectUrl.current) {
+              URL.revokeObjectURL(currentObjectUrl.current);
+              currentObjectUrl.current = null;
+            }
+            // Remove the oncanplaythrough listener to prevent memory leaks
+            if (audio) {
+              audio.oncanplaythrough = null;
+            }
+          };
+        }, [currentSongIndex, playlist]); // Removed `isPlaying` from dependencies here
 
-        ReactDOM.render(<App />, document.getElementById('root'));
+        // *** Keep this useEffect separate for handling play/pause state ***
+        useEffect(() => {
+          const audio = audioRef.current;
+          if (!audio || !audio.src || currentSongIndex === null) {
+            if (isPlaying) setIsPlaying(false);
+            return;
+          }
+
+          // Attempt to resume AudioContext on play/pause interaction
+          if (
+            audioContextRef.current &&
+            audioContextRef.current.state === "suspended"
+          ) {
+            audioContextRef.current
+              .resume()
+              .catch((e) =>
+                console.error("Error resuming AudioContext on play:", e)
+              );
+          }
+
+          if (isPlaying) {
+            audio.play().catch((error) => {
+              console.error(
+                "Autoplay prevented in isPlaying useEffect:",
+                error
+              );
+              setIsPlaying(false);
+            });
+          } else {
+            audio.pause();
+          }
+        }, [isPlaying, currentSongIndex, playlist]); // currentSongIndex and playlist ensure audio.src is potentially set before playing
+
+        const handleFileChange = (event) => {
+          const files = Array.from(event.target.files);
+          const audioFiles = files.filter(
+            (file) =>
+              file.type.startsWith("audio/") ||
+              /\.(mp3|wav|ogg|flac)$/i.test(file.name)
+          );
+
+          if (isShuffling && audioFiles.length > 0) {
+            const newShuffledFiles = shuffleArray(audioFiles);
+            setPlaylist(newShuffledFiles);
+            if (newShuffledFiles.length > 0 && currentSongIndex === null) {
+              setCurrentSongIndex(0);
+            } else if (newShuffledFiles.length === 0) {
+              setCurrentSongIndex(null);
+            }
+          } else {
+            setPlaylist(audioFiles);
+            if (audioFiles.length > 0 && currentSongIndex === null) {
+              setCurrentSongIndex(0);
+            } else if (audioFiles.length === 0) {
+              setCurrentSongIndex(null);
+            }
+          }
+        };
+
+        const openFolder = () => fileInputRef.current.click();
+
+        const openSingleFile = () => {
+          const input = document.createElement("input");
+          input.type = "file";
+          input.accept = "audio/*, .mp3, .wav, .ogg, .flac";
+          input.onchange = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+              setPlaylist((prevPlaylist) => {
+                const newPlaylist = [...prevPlaylist, file];
+                if (isShuffling) {
+                  const shuffledFullPlaylist = shuffleArray(newPlaylist);
+                  if (
+                    currentSongIndex === null &&
+                    shuffledFullPlaylist.length === 1
+                  ) {
+                    setCurrentSongIndex(0);
+                  } else if (shuffledFullPlaylist.length > 0 && !isPlaying) {
+                    // Logic for handling added file in shuffled playlist
+                  }
+                  return shuffledFullPlaylist;
+                }
+
+                if (currentSongIndex === null && newPlaylist.length === 1) {
+                  setCurrentSongIndex(0);
+                }
+                return newPlaylist;
+              });
+            }
+          };
+          input.click();
+        };
+
+        const togglePlayPause = () => {
+          if (playlist.length === 0) return;
+
+          // Ensure AudioContext is resumed on user interaction (play/pause click)
+          if (
+            audioContextRef.current &&
+            audioContextRef.current.state === "suspended"
+          ) {
+            audioContextRef.current
+              .resume()
+              .catch((e) =>
+                console.error("Error resuming AudioContext on play/pause:", e)
+              );
+          }
+
+          if (currentSongIndex === null && playlist.length > 0) {
+            setCurrentSongIndex(0);
+            setIsPlaying(true);
+          } else {
+            setIsPlaying(!isPlaying);
+          }
+        };
+
+        const playSong = (indexInFiltered) => {
+          const actualIndex = playlist.indexOf(
+            filteredPlaylist[indexInFiltered]
+          );
+          if (actualIndex === -1) return;
+
+          // Ensure AudioContext is resumed on user interaction (playlist item click)
+          if (
+            audioContextRef.current &&
+            audioContextRef.current.state === "suspended"
+          ) {
+            audioContextRef.current
+              .resume()
+              .catch((e) =>
+                console.error(
+                  "Error resuming AudioContext on playlist item click:",
+                  e
+                )
+              );
+          }
+
+          if (actualIndex !== currentSongIndex) {
+            setCurrentSongIndex(actualIndex);
+            setIsPlaying(true);
+          } else {
+            // If clicking the currently playing song, toggle play/pause
+            setIsPlaying(!isPlaying);
+          }
+        };
+
+        const playPreviousSong = () => {
+          if (playlist.length === 0) return;
+          let prevIndex;
+          if (isShuffling) {
+            if (playlist.length <= 1) {
+              prevIndex = 0;
+            } else {
+              do {
+                prevIndex = Math.floor(Math.random() * playlist.length);
+              } while (prevIndex === currentSongIndex);
+            }
+          } else {
+            prevIndex =
+              (currentSongIndex - 1 + playlist.length) % playlist.length;
+          }
+          setCurrentSongIndex(prevIndex);
+          setIsPlaying(true);
+        };
+
+        const handleProgressBarChange = (e) => {
+          const audio = audioRef.current;
+          if (audio) {
+            audio.currentTime = e.target.value;
+            setCurrentTime(e.target.value);
+          }
+        };
+
+        const handleVolumeChange = (e) => {
+          const newVolume = parseFloat(e.target.value);
+          setVolume(newVolume);
+          // Volume is now controlled by the gainNode in the Web Audio API graph
+        };
+
+        const formatTime = (seconds) => {
+          if (isNaN(seconds) || seconds < 0) return "0:00";
+          const minutes = Math.floor(seconds / 60);
+          const remainingSeconds = Math.floor(seconds % 60);
+          return `${minutes}:${
+            remainingSeconds < 10 ? "0" : ""
+          }${remainingSeconds}`;
+        };
+
+        const toggleSidebar = () => {
+          setIsSidebarOpen((prevState) => !prevState);
+          setIsEQSidebarOpen(false); // Ensure EQ sidebar is closed when playlist opens
+        };
+
+        const handleCloseBothSidebars = () => {
+          setIsSidebarOpen(false);
+          setIsEQSidebarOpen(false);
+        };
+
+        const handleDeleteSong = (indexToDeleteInOriginal, event) => {
+          event.stopPropagation();
+          setPlaylist((prevPlaylist) => {
+            const newPlaylist = prevPlaylist.filter(
+              (_, idx) => idx !== indexToDeleteInOriginal
+            );
+
+            let newCurrentSongIndex = currentSongIndex;
+            let shouldStopPlaying = false;
+
+            if (newPlaylist.length === 0) {
+              newCurrentSongIndex = null;
+              shouldStopPlaying = true;
+            } else if (currentSongIndex === indexToDeleteInOriginal) {
+              newCurrentSongIndex =
+                indexToDeleteInOriginal >= newPlaylist.length
+                  ? 0
+                  : indexToDeleteInOriginal;
+            } else if (currentSongIndex > indexToDeleteInOriginal) {
+              newCurrentSongIndex = currentSongIndex - 1;
+            }
+
+            setCurrentSongIndex(newCurrentSongIndex);
+            if (shouldStopPlaying) {
+              setIsPlaying(false);
+            }
+            return newPlaylist;
+          });
+        };
+
+        const clearPlayList = () => {
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.src = "";
+          }
+          if (currentObjectUrl.current) {
+            URL.revokeObjectURL(currentObjectUrl.current);
+            currentObjectUrl.current = null;
+          }
+          setPlaylist([]);
+          setCurrentSongIndex(null);
+          setIsPlaying(false);
+          setSongTitle("Tidak ada lagu yang sedang diputar");
+          setSongArtist("");
+          setAlbumArtUrl(
+            "https://placehold.co/200x200/bec8e4/9baacf?text=No+Art"
+          );
+          setDuration(0);
+          setCurrentTime(0);
+          setSearchQuery("");
+          setIsRepeating(false);
+          setIsShuffling(false);
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
+
+          // Reset EQ settings to default (flat)
+          setEqSettings({ low: 0, mid: 0, high: 0 });
+        };
+
+        return (
+          <div className="container">
+            {/* Combined Sidebar Card */}
+            <div
+              className={`playlist-card ${
+                isSidebarOpen || isEQSidebarOpen ? "open" : "collapsed"
+              }`}
+            >
+              <div className="playlist-header">
+                {/* Display header based on which sidebar is open, or default to Playlist if neither is explicitly open but the main sidebar is expanded */}
+                {isSidebarOpen && <h3>Playlist</h3>}
+                {isEQSidebarOpen && <h3>Equalizer</h3>}
+
+                <div className="header-buttons-group">
+                  {/* Show search button only if playlist sidebar is open */}
+                  {isSidebarOpen && (
+                    <button
+                      className="search-toggle-btn"
+                      onClick={handleSearchClick}
+                      aria-label="Search Playlist"
+                    >
+                      <i className="fas fa-search"></i>
+                    </button>
+                  )}
+                  {/* Toggle button for the main playlist sidebar */}
+                  <button
+                    className="sidebar-toggle-btn"
+                    onClick={
+                      isSidebarOpen || isEQSidebarOpen
+                        ? handleCloseBothSidebars // If either is open, this button closes both
+                        : toggleSidebar // Otherwise, it opens the playlist sidebar
+                    }
+                    aria-label={
+                      isSidebarOpen || isEQSidebarOpen
+                        ? "Close Sidebars" // Label for closing both
+                        : "Open Playlist" // Label for opening playlist
+                    }
+                  >
+                    <i
+                      className={`fas ${
+                        isSidebarOpen || isEQSidebarOpen
+                          ? "fa-times"
+                          : "fa-bars"
+                      }`}
+                    ></i>
+                  </button>
+                </div>
+              </div>
+
+              {/* Toggle button for the equalizer sidebar, visible when the main sidebar is open (to switch to EQ) or when both are collapsed (to open EQ) */}
+              {!isSidebarOpen && !isEQSidebarOpen && (
+                <button
+                  className={`sidebar-toggle-btn mt-3 ${
+                    isEQSidebarOpen ? "eq-button-hidden" : ""
+                  }`}
+                  aria-label="Open Equalizer"
+                  onClick={toggleEQSidebar}
+                >
+                  <i className="fas fa-sliders" aria-hidden="true"></i>
+                </button>
+              )}
+
+              {/* Content for Playlist */}
+              {isSidebarOpen && !isEQSidebarOpen && (
+                <>
+                  {isSearchActive && (
+                    <div className="search-input-container">
+                      <input
+                        type="text"
+                        placeholder="Cari lagu..."
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        className="search-input"
+                      />
+                    </div>
+                  )}
+                  <ul className="playlist-list">
+                    {filteredPlaylist.length === 0 && searchQuery !== "" ? (
+                      <li className="playlist-empty">
+                        No matching songs found.
+                      </li>
+                    ) : filteredPlaylist.length === 0 &&
+                      playlist.length > 0 &&
+                      searchQuery === "" ? (
+                      <li className="playlist-empty">
+                        Belum ada lagu yang ditambahkan.
+                      </li>
+                    ) : playlist.length === 0 ? (
+                      <li className="playlist-empty">
+                        Belum ada lagu yang ditambahkan.
+                      </li>
+                    ) : (
+                      filteredPlaylist.map((song, index) => (
+                        <li
+                          key={song.name + index + playlist.indexOf(song)}
+                          className={`playlist-item ${
+                            song === playlist[currentSongIndex] ? "active" : ""
+                          }`}
+                        >
+                          <div
+                            className="playlist-item-inner"
+                            onClick={() => playSong(index)}
+                          >
+                            <span className="playlist-song-name">
+                              {song.name.split(".").slice(0, -1).join(".") ||
+                                song.name}
+                            </span>
+                            <button
+                              className="btn btn__delete"
+                              onClick={(e) =>
+                                handleDeleteSong(playlist.indexOf(song), e)
+                              }
+                              aria-label={`Delete ${song.name}`}
+                            >
+                              <i className="fas fa-trash-alt"></i>
+                            </button>
+                          </div>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                  <div
+                    className="button-container-flex"
+                    style={{ marginTop: "auto", paddingTop: "1.5rem" }}
+                  >
+                    <button
+                      className="btn btn-pl btn__secondary"
+                      onClick={openFolder}
+                      title="Buka Folder"
+                    >
+                      <i className="fas fa-folder"></i>
+                    </button>
+                    <button
+                      className="btn btn-pl btn__secondary"
+                      onClick={openSingleFile}
+                      title="Tambahkan File ke Playlist"
+                    >
+                      <i className="fas fa-file-audio"></i>
+                    </button>
+                    <button
+                      className="btn btn-pl btn__secondary"
+                      onClick={clearPlayList}
+                      title="Bersihkan Playlist"
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                    <div className="dropup-container-absolute">
+                      <div className="dropup">
+                        <button
+                          className="btn btn-pl btn__secondary dropup-toggle"
+                          onClick={toggleSortDropup}
+                          title="Urutkan Playlist berdasarkan..."
+                          ref={sortButtonRef}
+                        >
+                          <i className="fa-solid fa-sort"></i>
+                        </button>
+                        {isSortDropupOpen && (
+                          <div
+                            className="dropup-menu"
+                            ref={dropupMenuRef}
+                            style={{ position: "fixed", zIndex: 1000 }}
+                          >
+                            <button
+                              className="dropup-item"
+                              onClick={() => sortPlayListBy("title")}
+                            >
+                              Judul
+                            </button>
+                            <button
+                              className="dropup-item"
+                              onClick={() => sortPlayListBy("artist")}
+                            >
+                              Artist
+                            </button>
+                            <button
+                              className="dropup-item"
+                              onClick={() => sortPlayListBy("dateAdded")}
+                            >
+                              Tanggal
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      className="btn btn-pl btn__secondary"
+                      title="Pengaturan"
+                    >
+                      <i className="fa-solid fa-gear"></i>
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {/* Content for Equalizer */}
+              {isEQSidebarOpen && !isSidebarOpen && (
+                <div className="eq-controls">
+                  <div className="eq-band">
+                    <label>Bass</label>
+                    <input
+                      type="range"
+                      min="-12"
+                      max="12"
+                      value={eqSettings.low} // Changed from bass to low
+                      onChange={(e) => handleEQChange("low", e.target.value)} // Using handleEQChange
+                      className="eq-slider"
+                    />
+                    <span>{eqSettings.low}dB</span>{" "}
+                    {/* Changed from bass to low */}
+                  </div>
+                  <div className="eq-band">
+                    <label>Mid</label>
+                    <input
+                      type="range"
+                      min="-12"
+                      max="12"
+                      value={eqSettings.mid}
+                      onChange={(e) => handleEQChange("mid", e.target.value)}
+                      className="eq-slider"
+                    />
+                    <span>{eqSettings.mid}dB</span>
+                  </div>
+                  <div className="eq-band">
+                    <label>Treble</label>
+                    <input
+                      type="range"
+                      min="-12"
+                      max="12"
+                      value={eqSettings.high} // Changed from treble to high
+                      onChange={(e) => handleEQChange("high", e.target.value)} // Using handleEQChange
+                      className="eq-slider"
+                    />
+                    <span>{eqSettings.high}dB</span>{" "}
+                    {/* Changed from treble to high */}
+                  </div>
+                  <button
+                    className="btn btn-pl btn__secondary"
+                    onClick={() => setEqSettings({ low: 0, mid: 0, high: 0 })} // Changed bass/treble to low/high
+                    style={{ marginTop: "1rem" }}
+                  >
+                    Reset EQ
+                  </button>
+                </div>
+              )}
+
+              {/* Logo for collapsed state - always rendered, CSS controls visibility */}
+              {!isSidebarOpen && !isEQSidebarOpen && (
+                <div className="playlist-card-logo mb-3 font-weight-bold">
+                  Kyrop
+                  <i className="fas fa-compact-disc"></i>d{" "}
+                  {/* Example logo icon */}
+                </div>
+              )}
+
+              {/* File input (always present but hidden) */}
+              <input
+                type="file"
+                webkitdirectory=""
+                directory=""
+                multiple=""
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+                accept="audio/*,.mp3,.wav,.ogg,.flac"
+              />
+            </div>
+
+            {/* Main Player Card */}
+            <div className="player-card">
+              <div className="album-art-wrapper">
+                <img
+                  src={albumArtUrl}
+                  alt="Album Art"
+                  className="album-art"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src =
+                      "https://placehold.co/200x200/bec8e4/9baacf?text=No+Art";
+                  }}
+                />
+              </div>
+              <div className="song-info">
+                <h2
+                  className={`song-title ${
+                    isTitleOverflowing ? "is-scrolling" : ""
+                  }`}
+                  ref={titleRef}
+                  title={songTitle}
+                >
+                  <span>
+                    {songTitle}
+                    {isTitleOverflowing && (
+                      <>
+                        <span
+                          className="inline-block"
+                          style={{
+                            width: `${gapPixels}px`,
+                            display: "inline-block",
+                          }}
+                        ></span>
+                        {songTitle}
+                      </>
+                    )}
+                  </span>
+                </h2>
+                <p
+                  className={`song-artist ${
+                    isArtistOverflowing ? "is-scrolling-artist" : ""
+                  }`}
+                  ref={artistRef}
+                  title={songArtist}
+                >
+                  <span>
+                    {songArtist}
+                    {isArtistOverflowing && (
+                      <>
+                        <span
+                          className="inline-block"
+                          style={{
+                            width: `${gapPixels}px`,
+                            display: "inline-block",
+                          }}
+                        ></span>
+                        {songArtist}
+                      </>
+                    )}
+                  </span>
+                </p>
+              </div>
+
+              <div className="controls-wrapper">
+                <div className="progress-bar-container">
+                  <input
+                    type="range"
+                    min="0"
+                    max={duration || 0}
+                    value={currentTime}
+                    onChange={handleProgressBarChange}
+                    className="progress-slider"
+                    disabled={playlist.length === 0}
+                  />
+                  <div className="time-display">
+                    <span>{formatTime(currentTime)}</span>
+                    <span>{formatTime(duration)}</span>
+                  </div>
+                </div>
+
+                <div className="player-buttons">
+                  <button
+                    className={`icon__repeat ${isRepeating ? "active" : ""}`}
+                    onClick={toggleRepeat} // MODIFIED: Uses updated toggleRepeat
+                    aria-label="Repeat Song"
+                    disabled={playlist.length === 0}
+                  >
+                    <i className="fas fa-redo"></i>
+                  </button>
+                  <button
+                    className="icon__prev"
+                    onClick={playPreviousSong}
+                    aria-label="Previous Song"
+                    disabled={playlist.length === 0}
+                  >
+                    <i className="fas fa-step-backward"></i>
+                  </button>
+                  <div className="circle">
+                    <button
+                      className={`circle__btn ${isPlaying ? "shadow" : ""}`}
+                      onClick={togglePlayPause}
+                      aria-label={isPlaying ? "Pause" : "Play"}
+                      disabled={playlist.length === 0}
+                    >
+                      <i className="fas fa-play"></i>
+                      <i className="fas fa-pause"></i>
+                    </button>
+                    <div
+                      className={`circle__back-1 ${
+                        isPlaying && playlist.length > 0 ? "" : "paused"
+                      }`}
+                    ></div>
+                    <div
+                      className={`circle__back-2 ${
+                        isPlaying && playlist.length > 0 ? "" : "paused"
+                      }`}
+                    ></div>
+                  </div>
+                  <button
+                    className="icon__next"
+                    onClick={playNextSong}
+                    aria-label="Next Song"
+                    disabled={playlist.length === 0}
+                  >
+                    <i className="fas fa-step-forward"></i>
+                  </button>
+                  <button
+                    className={`icon__shuffle ${isShuffling ? "active" : ""}`}
+                    onClick={toggleShuffle} // MODIFIED: Uses updated toggleShuffle
+                    aria-label="Shuffle Playlist"
+                    disabled={playlist.length === 0}
+                  >
+                    <i className="fas fa-random"></i>
+                  </button>
+                </div>
+
+                <div className="volume-control">
+                  <i className="fas fa-volume-down"></i>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={volume}
+                    onChange={handleVolumeChange}
+                    className="volume-slider"
+                    aria-label="Volume Slider"
+                    disabled={playlist.length === 0}
+                  />
+                  <i className="fas fa-volume-up"></i>
+                </div>
+              </div>
+            </div>
+            <audio ref={audioRef} preload="metadata"></audio>
+          </div>
+        );
+      }
+
+      ReactDOM.render(<App />, document.getElementById("root"));
     </script>
-</body>
-
+  </body>
 </html>
