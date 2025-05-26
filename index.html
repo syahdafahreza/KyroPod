@@ -179,9 +179,8 @@
 
         // Derived States/Custom Hooks
         const gapPixels = 30;
-        // Assuming useMarquee hook exists and works as intended
-        const { isOverflowing: isTitleOverflowing } = { isOverflowing: false }; // Placeholder if useMarquee isn't provided
-        const { isOverflowing: isArtistOverflowing } = { isOverflowing: false }; // Placeholder if useMarquee isn't provided
+        const { isOverflowing: isTitleOverflowing } = useMarquee( songTitle, titleRef, gapPixels );
+        const { isOverflowing: isArtistOverflowing } = useMarquee( songArtist, artistRef, gapPixels );
 
         const filteredPlaylist = playlist.filter((song) =>
           song.name.toLowerCase().includes(searchQuery.toLowerCase())
