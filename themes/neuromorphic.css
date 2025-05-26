@@ -1301,77 +1301,229 @@ html {
 }
 
 @media (max-width: 480px) {
-  .playlist-header:not(.playlist-card.collapsed .playlist-header) {
-    /* Only apply to open card */
+  .container {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    height: auto;
+    padding: 1rem; /* Slightly reduced padding for very small screens */
+    gap: 1rem; /* Slightly reduced gap */
+    width: 100%; /* Take full width */
+    border-radius: 2rem; /* Slightly smaller border-radius for aesthetics */
+  }
+  .mt-3, .my-3 {
+    margin-top: 0!important;
+  }
+
+  .playlist-card,
+  .player-card {
+    width: 100%;
+    height: auto;
+    max-width: none; /* Ensure no max-width constraints */
+    padding: 1rem; /* Consistent padding */
+    border-radius: 2rem; /* Consistent border-radius */
   }
 
   .playlist-card.collapsed {
-    flex: 0 0 6rem;
-    max-width: 100%;
-    padding: 1.5rem 0.5rem;
+    height: 5.5rem; /* Slightly smaller height for collapsed state */
+    padding: 0.8rem 1rem; /* Adjusted padding */
+  }
+
+  .playlist-header {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 0.8rem; /* Reduced margin */
+    gap: 0.8rem; /* Reduced gap */
+  }
+
+  .playlist-header h3 {
+    font-size: 1.8rem; /* Smaller font size for header */
   }
 
   .playlist-card:not(.collapsed) .playlist-header .sidebar-toggle-btn {
-    /* Only for open card on small screen if header is column */
     position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-  }
-  .playlist-card:not(.collapsed) .playlist-header .search-toggle-btn {
-    align-self: flex-start; /* Keep search button aligned left */
-  }
-
-  .btn__secondary {
-    width: auto; /* Allow buttons to size naturally */
-    padding: 0.8rem 1.2rem; /* Adjust padding */
-  }
-  .button-container-flex {
-    justify-content: space-around;
-    transition: opacity 0.3s ease-in-out 0.1s; /* Better distribute buttons */
-  }
-
-  /* ADD: Rules for when the playlist-card is collapsed */
-.playlist-card.collapsed .playlist-header h3,
-.playlist-card.collapsed .eq-controls,
-.playlist-card.collapsed .search-input-container,
-.playlist-card.collapsed .header-buttons-group,
-.playlist-card.collapsed .playlist-list,
-.playlist-card.collapsed .button-container-flex:not(.sidebar-toggle-btn-wrapper) { /* Exclude the button container that holds the toggle */
-  opacity: 0;
-  pointer-events: none; /* Disable interaction when hidden */
-  transition-delay: 0s; /* No delay when hiding */
-}
-
-  .song-title {
-    font-size: 1.8rem;
-  }
-
-  .song-artist {
-    font-size: 1.2rem;
-  }
-  .player-buttons {
-    gap: 1rem;
-  }
-  .player-buttons button,
-  .player-buttons .icon__prev,
-  .player-buttons .icon__next,
-  .player-buttons .icon__repeat,
-  .player-buttons .icon__shuffle {
-    width: 4rem;
+    top: 1rem; /* Adjusted position */
+    right: 1rem; /* Adjusted position */
+    width: 4rem; /* Smaller toggle button */
     height: 4rem;
     font-size: 1.8rem;
   }
+
+  .playlist-card:not(.collapsed) .playlist-header .search-toggle-btn {
+    align-self: flex-start;
+    width: 4rem; /* Smaller toggle button */
+    height: 4rem;
+    font-size: 1.8rem;
+  }
+
+  .header-buttons-group {
+    flex-wrap: wrap; /* Allow buttons to wrap */
+    justify-content: center; /* Center buttons when wrapped */
+    gap: 0.8rem; /* Reduced gap between buttons */
+  }
+
+  .button-container-flex {
+    justify-content: center; /* Center the buttons within this container */
+    gap: 0.8rem; /* Reduced gap */
+    width: 100%; /* Ensure it takes full width to allow centering */
+    flex-wrap: wrap; /* Allow buttons to wrap within the container */
+  }
+
+  .btn {
+    padding: 0.7rem 1rem; /* Smaller padding for buttons */
+    font-size: 1.4rem; /* Smaller font size for button text */
+  }
+
+  .btn-pl {
+    padding: 0.7rem 1.2rem; /* Adjusted for playlist buttons */
+  }
+
+  .search-input-container {
+    padding: 0.8rem 0; /* Adjusted padding */
+    margin-bottom: 0.8rem; /* Adjusted margin */
+  }
+
+  .search-input {
+    padding: 0.7rem 1rem; /* Smaller padding for input */
+    font-size: 1.2rem; /* Smaller font size for input */
+  }
+
+  .playlist-list {
+    height: 20rem; /* Slightly reduced height for playlist list */
+    padding-right: 0.5rem; /* Smaller scrollbar padding */
+  }
+
+  .playlist-item {
+    margin-bottom: 0.6rem; /* Reduced margin */
+    margin-top: 0.4rem;
+    margin-left: 0.4rem;
+  }
+
+  .playlist-item-inner {
+    padding: 0.8rem 1rem; /* Smaller padding for playlist items */
+    font-size: 1.2rem; /* Smaller font size for playlist items */
+  }
+
+  .btn__delete {
+    font-size: 1.4rem; /* Smaller delete icon */
+    padding: 0.4rem; /* Smaller padding for delete button */
+  }
+
+  .playlist-card.collapsed .playlist-card-logo {
+    left: 6.5rem; /* Adjusted left position */
+    font-size: 2rem; /* Slightly smaller logo */
+  }
+
+  .album-art-wrapper {
+    width: 12rem; /* Smaller album art */
+    height: 12rem;
+    margin-bottom: 1.5rem; /* Reduced margin */
+  }
+
+  .song-info {
+    margin-bottom: 1.5rem; /* Reduced margin */
+  }
+
+  .song-title {
+    font-size: 2rem; /* Adjusted font size */
+    margin-bottom: 0.4rem; /* Reduced margin */
+  }
+
+  .song-artist {
+    font-size: 1.3rem; /* Adjusted font size */
+  }
+
+  .progress-bar-container {
+    width: 95%; /* Wider progress bar */
+    margin-bottom: 1.5rem; /* Reduced margin */
+  }
+
+  .progress-slider {
+    height: 0.8rem; /* Slightly thinner progress slider */
+  }
+
+  .progress-slider::-webkit-slider-thumb,
+  .progress-slider::-moz-range-thumb,
+  .progress-slider::-ms-thumb {
+    width: 1.6rem; /* Smaller thumb */
+    height: 1.6rem;
+    margin-top: -0.4rem; /* Adjusted margin */
+  }
+
+  .time-display {
+    font-size: 1.1rem; /* Smaller time display */
+    margin-top: 0.4rem;
+  }
+
+  .player-buttons {
+    gap: 0.8rem; /* Reduced gap */
+    margin-bottom: 1.5rem; /* Reduced margin */
+  }
+
+  .icon__prev,
+  .icon__next,
+  .icon__repeat,
+  .icon__shuffle {
+    width: 4rem; /* Smaller control buttons */
+    height: 4rem;
+    font-size: 1.8rem;
+  }
+
+  .circle {
+    width: 7rem; /* Smaller play button container */
+    height: 7rem;
+  }
+
   .circle__btn {
-    width: 5rem;
+    width: 5rem; /* Smaller play/pause button */
     height: 5rem;
     font-size: 2.8rem;
+    margin: 0.5rem; /* Adjusted margin */
   }
+
   .circle__back-1,
   .circle__back-2 {
-    width: 5rem;
+    width: 5rem; /* Smaller wave backgrounds */
     height: 5rem;
+  }
+
+  .volume-control {
+    width: 85%; /* Wider volume control */
+    gap: 0.8rem; /* Reduced gap */
+  }
+
+  .volume-control i {
+    font-size: 1.8rem; /* Smaller volume icon */
+  }
+
+  .volume-slider {
+    height: 0.8rem; /* Thinner volume slider */
+  }
+
+  .volume-slider::-webkit-slider-thumb,
+  .volume-slider::-moz-range-thumb {
+    width: 1.6rem; /* Smaller volume thumb */
+    height: 1.6rem;
+  }
+
+  .eq-controls {
+    padding: 1rem; /* Reduced padding */
+    gap: 1rem; /* Reduced gap */
+  }
+
+  .eq-band label {
+    font-size: 1.2rem; /* Smaller label font size */
+  }
+
+  .eq-band span {
+    font-size: 1rem; /* Smaller span font size */
+  }
+
+  .eq-slider {
+    height: 0.8rem; /* Thinner EQ slider */
+  }
+
+  .eq-slider::-webkit-slider-thumb,
+  .eq-slider::-moz-range-thumb {
+    width: 1.6rem; /* Smaller EQ thumb */
+    height: 1.6rem;
   }
 }
