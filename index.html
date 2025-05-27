@@ -490,7 +490,7 @@
                     nextIndex = (currentSongIndex + 1) % playlist.length;
                 }
                 setCurrentSongIndex(nextIndex);
-                // setIsPlaying(true); // Let the useEffect for currentSongIndex change handle playing if appropriate
+                setIsPlaying(true); // Let the useEffect for currentSongIndex change handle playing if appropriate
             }, [playlist, currentSongIndex, isShuffling, isRepeating]); // isRepeating to know if audio.loop is set
 
             useEffect(() => {
