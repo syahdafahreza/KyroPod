@@ -157,6 +157,7 @@
             const [playlist, setPlaylist] = useState([]);
             const [currentSongIndex, setCurrentSongIndex] = useState(null);
             const [isPlaying, setIsPlaying] = useState(false);
+            const sliderBoxRef = useRef(null);
             useAudioStateSync(audioRef, setIsPlaying);
 
             // --- FIX: Ref untuk isPlaying ---
@@ -318,6 +319,53 @@
                 };
             }, [isSortDropupOpen]);
 
+            const calculateSliderPositions = useCallback(() => {
+                if (!sliderBoxRef.current || duration === 0) {
+                    return { thumbLeft: 0, colorWidth: 0 };
+                }
+
+                // Get the computed font-size of the html element to convert rem to px
+                // This is important because 1rem can vary depending on media queries
+                const htmlFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+                // Assuming your .slider__btn width is 2rem, convert to px
+                const thumbWidthPx = 2 * htmlFontSize; // 2rem * 10px/rem = 20px (if html font-size is 10px)
+                const halfThumbWidthPx = thumbWidthPx / 2;
+
+                const trackWidthPx = sliderBoxRef.current.clientWidth;
+
+                // Calculate the raw percentage of current time relative to duration (0 to 1)
+                let rawProgressRatio = currentTime / duration;
+                rawProgressRatio = Math.max(0, Math.min(1, rawProgressRatio)); // Clamp between 0 and 1
+
+                // Calculate the effective pixel range the thumb's *center* can travel
+                // The thumb's center cannot go past half its width from either end
+                const effectiveTrackWidthForThumbCenter = trackWidthPx - thumbWidthPx;
+
+                // Calculate the thumb's center position in pixels relative to the *effective* track
+                let thumbCenterPx = rawProgressRatio * effectiveTrackWidthForThumbCenter;
+
+                // Add halfThumbWidthPx to adjust for the left offset of the thumb's visual area
+                // This makes 0% progress correspond to the thumb's left edge aligning with the track's left edge
+                thumbCenterPx += halfThumbWidthPx;
+
+                // The color fill should extend to the *center* of the thumb
+                // However, it should not exceed the full track width.
+                const colorFillPx = thumbCenterPx;
+
+                // Convert pixel positions back to percentages for CSS `left` and `width`
+                const thumbLeftPercentage = (thumbCenterPx / trackWidthPx) * 100;
+                const colorWidthPercentage = (colorFillPx / trackWidthPx) * 100;
+
+                return {
+                    // Clamp thumbLeftPercentage to prevent it from slightly overshooting 100% due to floating point arithmetic
+                    thumbLeft: Math.max(0, Math.min(100, thumbLeftPercentage)),
+                    // Clamp colorWidthPercentage to prevent it from slightly overshooting 100%
+                    colorWidth: Math.max(0, Math.min(100, colorWidthPercentage))
+                };
+            }, [currentTime, duration]);
+
+            const { thumbLeft, colorWidth } = calculateSliderPositions();
+
             const handleSearchChange = (e) => setSearchQuery(e.target.value);
 
             const shuffleArray = (array) => {
@@ -366,9 +414,6 @@
                 if (playlist.length === 0) return;
                 const audio = audioRef.current;
                 if (!audio) return;
-                // Removed: if (audio.loop && isRepeating) return;
-                // Tombol Next harus selalu memutar lagu berikutnya.
-                // Logika repeat ditangani oleh handleAudioEnded & audio.loop.
 
                 console.log("playNextSong called.");
                 if (audioContextRef.current && audioContextRef.current.state === "suspended") {
@@ -380,17 +425,40 @@
 
                 let nextIndex;
                 if (isShuffling) {
-                    if (playlist.length <= 1) nextIndex = 0;
-                    else {
-                        do { nextIndex = Math.floor(Math.random() * playlist.length); }
-                        while (playlist.length > 1 && nextIndex === currentSongIndex);
+                    if (playlist.length <= 1) {
+                        // If only one song or no songs, and shuffling, stop playback.
+                        nextIndex = null; // Indicate no next song
+                    } else {
+                        // Shuffle: pick a random song different from the current one
+                        do {
+                            nextIndex = Math.floor(Math.random() * playlist.length);
+                        } while (nextIndex === currentSongIndex); // Ensure it's not the same song unless it's the only one
                     }
                 } else {
-                    nextIndex = (currentSongIndex + 1) % playlist.length;
+                    // Regular sequential playback
+                    if (currentSongIndex === playlist.length - 1) {
+                        // If it's the last song in the playlist and not repeating, stop.
+                        nextIndex = null; // Indicate no next song
+                    } else {
+                        // Otherwise, go to the next song in sequence.
+                        nextIndex = currentSongIndex + 1;
+                    }
                 }
-                setCurrentSongIndex(nextIndex);
-                setIsPlaying(true); // Niat untuk memutar lagu berikutnya
-            }, [playlist, currentSongIndex, isShuffling, audioRef, audioContextRef]); // isRepeating dihapus karena tidak relevan untuk logika tombol next
+
+                if (nextIndex !== null) {
+                    setCurrentSongIndex(nextIndex);
+                    setIsPlaying(true); // Intent to play the next song
+                } else {
+                    // No next song, stop playback
+                    setCurrentSongIndex(null); // Clear current song
+                    setIsPlaying(false); // Stop playing
+                    if (audio) {
+                        audio.pause(); // Ensure audio element is paused
+                        audio.currentTime = 0; // Reset time if desired
+                    }
+                    console.log("End of playlist. Stopping playback.");
+                }
+            }, [playlist, currentSongIndex, isShuffling, audioRef, audioContextRef]); // isRepeating removed as it's handled by audio.loop and handleAudioEnded // isRepeating dihapus karena tidak relevan untuk logika tombol next
 
 
             const handleError = useCallback((event) => {
@@ -898,11 +966,10 @@
 
                         <div className="controls-wrapper">
                             <div className="slider">
-                                <div className="slider__box">
+                                <div className="slider__box" ref={sliderBoxRef}>
                                     <input type="range" min="0" max={duration || 0} value={currentTime} onChange={handleProgressBarChange} className="progress-slider" disabled={playlist.length === 0} />
-                                    <span className="slider__btn" style={{ left: `${(currentTime / duration) * 100 || 0}%` }}></span>
-                                    <span className="slider__color" style={{ width: `${((currentTime / duration) * 100 || 0) + 1}%` }}></span>
-                                    <span className="slider__tooltip" style={{ left: `${(currentTime / duration) * 100 || 0}%` }}>{formatTime(currentTime)}</span>
+                                    <span className="slider__btn" style={{ left: `calc(${thumbLeft}% - 1%)` }} ></span>
+                                    <span className="slider__color" style={{ width: `calc(${colorWidth}% + 1%)` }} ></span>
                                 </div>
                                 <div className="time-display">
                                     <span>{formatTime(currentTime)}</span>

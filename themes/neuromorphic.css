@@ -750,7 +750,8 @@ html {
   width: 100%;
   height: 1rem;
   cursor: pointer;
-  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2), inset -0.2rem -0.2rem 0.5rem var(--white);
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white);
   border-radius: 1rem;
   position: relative;
   display: flex;
@@ -762,12 +763,16 @@ html {
   height: 2rem;
   border-radius: 50%;
   background: var(--white);
-  position: absolute;
+  position: absolute; /* Already there */
   box-shadow: 0px 0.1rem 0.3rem 0px var(--greyLight-3);
   z-index: 200;
   display: flex;
   justify-content: center;
   align-items: center;
+  --thumb-half-width: 1rem; /* Half of 2rem, already correct */
+  top: 50%; /* Make sure it's vertically centered */
+  transform: translateY(-50%); /* For perfect vertical centering */
+  /* Remove any existing 'left' property from here if it conflicts */
 }
 .slider__btn:hover ~ .slider__tooltip {
   opacity: 1;
@@ -778,23 +783,32 @@ html {
   width: 0.8rem;
   height: 0.8rem;
   border-radius: 50%;
-  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2), inset -0.2rem -0.2rem 0.5rem var(--white);
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white);
 }
 .slider__color {
   height: 100%;
-  width: 50%;
+  /* width will be set by JS */
   position: absolute;
   left: 0;
   z-index: 100;
   border-radius: inherit;
   background: var(--primary);
-  background: linear-gradient(-1deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+  background: linear-gradient(
+    -1deg,
+    var(--primary-dark) 0%,
+    var(--primary) 50%,
+    var(--primary-light) 100%
+  );
+  /* Add this to ensure it doesn't overflow visually */
+  overflow: hidden; /* If any content were to push past the bounds */
+  /* Ensure the border-radius applies nicely on the right edge */
+  border-top-right-radius: inherit;
+  border-bottom-right-radius: inherit;
 }
 .slider__tooltip {
   position: absolute;
-  top: 2.6rem;
-  height: 2.5rem;
-  width: 3rem;
+  top: 2.6rem; /* Adjust as needed */
   border-radius: 0.6rem;
   display: flex;
   justify-content: center;
@@ -804,8 +818,9 @@ html {
   box-shadow: 0.3rem 0.3rem 0.6rem var(--greyLight-2), -0.2rem -0.2rem 0.5rem var(--white);
   opacity: 0;
   transition: opacity 0.3s ease;
+  white-space: nowrap;
+  transform: translateX(-50%); /* Already correct for centering */
 }
-
 .time-display {
   display: flex;
   justify-content: space-between;
@@ -1288,8 +1303,9 @@ html {
     width: 100%; /* Take full width */
     border-radius: 2rem; /* Slightly smaller border-radius for aesthetics */
   }
-  .mt-3, .my-3 {
-    margin-top: 0!important;
+  .mt-3,
+  .my-3 {
+    margin-top: 0 !important;
   }
 
   .playlist-card,
