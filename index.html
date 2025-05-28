@@ -955,7 +955,7 @@
                         <div className="album-art-wrapper">
                             <img src={albumArtUrl} alt="Album Art" className="album-art" onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/200x200/bec8e4/9baacf?text=No+Art"; }} />
                         </div>
-                        <div className="song-info">
+                        <div className="song-info mt-2">
                             <h2 className={`song-title ${isTitleOverflowing ? "is-scrolling" : ""}`} ref={titleRef} title={songTitle}>
                                 <span>{songTitle}{isTitleOverflowing && (<><span className="inline-block" style={{ width: `${gapPixels}px`, display: "inline-block", }}></span>{songTitle}</>)}</span>
                             </h2>
@@ -968,8 +968,8 @@
                             <div className="slider">
                                 <div className="slider__box" ref={sliderBoxRef}>
                                     <input type="range" min="0" max={duration || 0} value={currentTime} onChange={handleProgressBarChange} className="progress-slider" disabled={playlist.length === 0} />
-                                    <span className="slider__btn" style={{ left: `calc(${thumbLeft}% - 1%)` }} ></span>
-                                    <span className="slider__color" style={{ width: `calc(${colorWidth}% + 1%)` }} ></span>
+                                    <span className="slider__btn" style={{ left: `calc(${thumbLeft}% - 12px)` }} ></span>
+                                    <span className="slider__color" style={{ width: `calc(${colorWidth}% + 10px)` }} ></span>
                                 </div>
                                 <div className="time-display">
                                     <span>{formatTime(currentTime)}</span>

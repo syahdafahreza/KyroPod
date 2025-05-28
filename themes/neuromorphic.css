@@ -586,7 +586,10 @@ html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-around;
+  /* Make sure these are updated from previous responses */
+  justify-content: flex-start; /* Changed to flex-start */
+  gap: 1.5rem; /* Added gap */
+
   padding: 2rem;
   position: relative;
   flex: 1;
@@ -597,19 +600,23 @@ html {
 }
 
 .album-art-wrapper {
-  width: 15rem;
-  height: 15rem;
+  max-width: 20rem; /* Keeps it from getting too big */
+  width: 100%; /* Makes it responsive up to max-width */
+  height: 40%;
+  padding-bottom: 0; /* 1:1 aspect ratio */
+  position: relative;
   border-radius: 2rem;
   box-shadow: 0.8rem 0.8rem 1.4rem var(--greyLight-2),
     -0.2rem -0.2rem 1.8rem var(--white);
-  display: flex;
-  justify-content: center;
-  align-items: center;
   overflow: hidden;
-  margin-bottom: 2rem;
+  /* Ensure margin-bottom is removed or commented out here */
+  /* margin-bottom: 2rem; /* Original - should be gone */
 }
 
 .album-art {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -632,16 +639,70 @@ html {
   margin-bottom: 0.5rem;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis; /* Default for non-scrolling overflow */
   position: relative;
   --marquee-duration: 0s;
   --marquee-distance: 0px;
   width: 100%;
   max-width: 100%;
+  /* Always reserve space for both potential gradients */
+  padding-left: 30px;
+  padding-right: 30px;
 }
 
+/* Base styles for both gradients, initially hidden by default unless explicitly made visible */
+.song-title::before,
+.song-title::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 30px; /* Width of the fade */
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.3s ease-in-out; /* Smooth transition */
+}
+
+/* Left gradient positioning */
+.song-title::before {
+  left: 0;
+  background: linear-gradient(
+    to left,
+    rgba(228, 235, 245, 0) 0%,
+    var(--neumorphic-base) 100%
+  );
+}
+
+/* Right gradient positioning */
+.song-title::after {
+  right: 0;
+  background: linear-gradient(
+    to right,
+    rgba(228, 235, 245, 0) 0%,
+    var(--neumorphic-base) 100%
+  );
+}
+
+/* When NOT scrolling (text is static, potentially ellipsized) */
+.song-title:not(.is-scrolling) {
+  text-overflow: ellipsis; /* Ensure ellipsis is applied */
+}
+
+/* Only show right gradient when not scrolling (because text-overflow: ellipsis covers the end) */
+.song-title:not(.is-scrolling)::after {
+  opacity: 1; /* Show right gradient */
+}
+
+/* When SCROLLING */
 .song-title.is-scrolling {
-  text-overflow: clip;
+  text-overflow: clip; /* Clip content for smooth scrolling */
+}
+
+/* Both gradients should be visible when scrolling */
+.song-title.is-scrolling::before,
+.song-title.is-scrolling::after {
+  opacity: 1; /* Show both gradients */
 }
 
 .song-title.is-scrolling span {
@@ -657,33 +718,80 @@ html {
   }
 
   5% {
+    /* Stay at start for a short delay */
     transform: translateX(0);
   }
 
   95% {
+    /* Move to the end */
     transform: translateX(var(--marquee-distance));
   }
 
   100% {
+    /* Instantly jump back for infinite loop */
     transform: translateX(var(--marquee-distance));
   }
 }
 
+/* Apply similar logic to song-artist */
 .song-artist {
   font-size: 1.6rem;
   color: var(--greyLight-3);
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis; /* Default for non-scrolling overflow */
   max-width: 100%;
   position: relative;
+  padding-left: 30px;
+  padding-right: 30px;
 }
 
-.song-artist span {
-  display: inline-block;
-  white-space: nowrap;
-  animation: marquee-artist var(--marquee-duration, 0s) linear infinite;
-  animation-play-state: paused;
+.song-artist::before,
+.song-artist::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 30px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.song-artist::before {
+  left: 0;
+  background: linear-gradient(
+    to left,
+    rgba(228, 235, 245, 0) 0%,
+    var(--neumorphic-base) 100%
+  );
+}
+
+.song-artist::after {
+  right: 0;
+  background: linear-gradient(
+    to right,
+    rgba(228, 235, 245, 0) 0%,
+    var(--neumorphic-base) 100%
+  );
+}
+
+.song-artist:not(.is-scrolling-artist) {
+  text-overflow: ellipsis;
+}
+
+.song-artist:not(.is-scrolling-artist)::after {
+  opacity: 1;
+}
+
+.song-artist.is-scrolling-artist {
+  text-overflow: clip;
+}
+
+.song-artist.is-scrolling-artist::before,
+.song-artist.is-scrolling-artist::after {
+  opacity: 1;
 }
 
 .song-artist.is-scrolling-artist span {
@@ -815,7 +923,8 @@ html {
   align-items: center;
   font-size: 1.2rem;
   color: var(--primary);
-  box-shadow: 0.3rem 0.3rem 0.6rem var(--greyLight-2), -0.2rem -0.2rem 0.5rem var(--white);
+  box-shadow: 0.3rem 0.3rem 0.6rem var(--greyLight-2),
+    -0.2rem -0.2rem 0.5rem var(--white);
   opacity: 0;
   transition: opacity 0.3s ease;
   white-space: nowrap;
@@ -1004,6 +1113,12 @@ html {
 
 @keyframes waves {
   0% {
+    transform: scale(1);
+    opacity: 0;
+    animation-timing-function: ease-in-out;
+    /* Apply to keyframes for smoother transitions between states */
+  }
+  10% {
     transform: scale(1);
     opacity: 1;
     animation-timing-function: ease-in-out;
