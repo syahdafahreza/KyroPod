@@ -123,30 +123,30 @@
 
                 const handlePlay = () => setIsPlaying(true);
                 const handlePause = () => setIsPlaying(false);
-                const handleEnded = () => setIsPlaying(false);
+                // handleEnded di useAudioStateSync tidak lagi mengatur setIsPlaying(false) secara langsung
+                // karena handleAudioEnded di App component akan memanggil playNextSong yang akan mengatur isPlaying.
+                // Ini mencegah isPlaying menjadi false sesaat sebelum lagu berikutnya mulai.
+                // const handleEnded = () => setIsPlaying(false); 
 
                 audio.addEventListener('play', handlePlay);
                 audio.addEventListener('pause', handlePause);
-                audio.addEventListener('ended', handleEnded);
+                // audio.addEventListener('ended', handleEnded); // Dihapus dari sini
 
                 return () => {
                     audio.removeEventListener('play', handlePlay);
                     audio.removeEventListener('pause', handlePause);
-                    audio.removeEventListener('ended', handleEnded);
+                    // audio.removeEventListener('ended', handleEnded); // Dihapus dari sini
                 };
             }, [audioRef, setIsPlaying]);
         };
         // --- END CUSTOM HOOK ---
 
         function App() {
-            // Refs
             const audioRef = useRef(null);
             const fileInputRef = useRef(null);
             const currentObjectUrl = useRef(null);
             const sortButtonRef = useRef(null);
             const dropupMenuRef = useRef(null);
-
-            // Web Audio API refs
             const audioContextRef = useRef(null);
             const sourceNodeRef = useRef(null);
             const gainNodeRef = useRef(null);
@@ -154,21 +154,23 @@
             const peakingFilterRef = useRef(null);
             const highShelfFilterRef = useRef(null);
 
-            // State Variables
             const [playlist, setPlaylist] = useState([]);
             const [currentSongIndex, setCurrentSongIndex] = useState(null);
             const [isPlaying, setIsPlaying] = useState(false);
-            useAudioStateSync(audioRef, setIsPlaying); // Hook untuk sinkronisasi state isPlaying
+            useAudioStateSync(audioRef, setIsPlaying);
+
+            // --- FIX: Ref untuk isPlaying ---
+            const isPlayingRef = useRef(isPlaying);
+            useEffect(() => {
+                isPlayingRef.current = isPlaying;
+            }, [isPlaying]);
+            // --- END FIX ---
 
             const [isRepeating, setIsRepeating] = useState(false);
             const [isShuffling, setIsShuffling] = useState(false);
             const [isBuffering, setIsBuffering] = useState(false);
-            const [albumArtUrl, setAlbumArtUrl] = useState(
-                "https://placehold.co/200x200/bec8e4/9baacf?text=No+Art"
-            );
-            const [songTitle, setSongTitle] = useState(
-                "Tidak ada lagu yang sedang diputar"
-            );
+            const [albumArtUrl, setAlbumArtUrl] = useState("https://placehold.co/200x200/bec8e4/9baacf?text=No+Art");
+            const [songTitle, setSongTitle] = useState("Tidak ada lagu yang sedang diputar");
             const [songArtist, setSongArtist] = useState("");
             const [currentTime, setCurrentTime] = useState(0);
             const [duration, setDuration] = useState(0);
@@ -178,23 +180,13 @@
             const [isSortDropupOpen, setIsSortDropupOpen] = useState(false);
             const [isSearchActive, setIsSearchActive] = useState(false);
             const [searchQuery, setSearchQuery] = useState("");
-
             const titleRef = useRef(null);
             const artistRef = useRef(null);
-
-            const [eqSettings, setEqSettings] = useState({
-                low: 0,
-                mid: 0,
-                high: 0,
-            });
-
+            const [eqSettings, setEqSettings] = useState({ low: 0, mid: 0, high: 0 });
             const gapPixels = 30;
             const { isOverflowing: isTitleOverflowing } = useMarquee(songTitle, titleRef, gapPixels);
             const { isOverflowing: isArtistOverflowing } = useMarquee(songArtist, artistRef, gapPixels);
-
-            const filteredPlaylist = playlist.filter((song) =>
-                song.name.toLowerCase().includes(searchQuery.toLowerCase())
-            );
+            const filteredPlaylist = playlist.filter((song) => song.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
             useEffect(() => {
                 const audio = audioRef.current;
@@ -212,49 +204,30 @@
             const toggleEQSidebar = () => {
                 setIsEQSidebarOpen((prevState) => !prevState);
                 setIsSidebarOpen(false);
-                if (
-                    !isEQSidebarOpen &&
-                    audioContextRef.current &&
-                    audioContextRef.current.state === "suspended"
-                ) {
-                    audioContextRef.current
-                        .resume()
-                        .catch((e) => console.error("Error resuming AudioContext:", e));
+                if (!isEQSidebarOpen && audioContextRef.current && audioContextRef.current.state === "suspended") {
+                    audioContextRef.current.resume().catch((e) => console.error("Error resuming AudioContext:", e));
                 }
             };
 
             const handleEQChange = useCallback((band, value) => {
-                setEqSettings((prevSettings) => ({
-                    ...prevSettings,
-                    [band]: parseFloat(value),
-                }));
+                setEqSettings((prevSettings) => ({ ...prevSettings, [band]: parseFloat(value) }));
             }, []);
 
-            // Inisialisasi AudioContext dan node-node nya
             useEffect(() => {
                 const audio = audioRef.current;
                 if (!audio) return;
-
                 if (!audioContextRef.current) {
                     audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
                 }
                 const audioContext = audioContextRef.current;
-
-                // Periksa apakah sourceNode sudah ada dan apakah elemen audio sama
-                // Ini penting untuk menghindari error "Cannot create MediaElementSource for an HTMLMediaElement having non-null srcObject"
-                // atau "InvalidStateNode" jika source sudah ada.
                 if (!sourceNodeRef.current || sourceNodeRef.current.mediaElement !== audio) {
-                    if (sourceNodeRef.current) { // Putuskan koneksi source lama jika ada
-                        sourceNodeRef.current.disconnect();
-                    }
+                    if (sourceNodeRef.current) sourceNodeRef.current.disconnect();
                     try {
                         sourceNodeRef.current = audioContext.createMediaElementSource(audio);
                     } catch (e) {
-                        console.error("Error creating MediaElementSource:", e);
-                        return;
+                        console.error("Error creating MediaElementSource:", e); return;
                     }
                 }
-
                 if (!gainNodeRef.current) {
                     gainNodeRef.current = audioContext.createGain();
                     gainNodeRef.current.gain.value = volume;
@@ -268,31 +241,25 @@
                     peakingFilterRef.current = audioContext.createBiquadFilter();
                     peakingFilterRef.current.type = "peaking";
                     peakingFilterRef.current.frequency.value = 1500;
-                    peakingFilterRef.current.Q.value = 1; // Default Q, bisa disesuaikan
+                    peakingFilterRef.current.Q.value = 1;
                 }
                 if (!highShelfFilterRef.current) {
                     highShelfFilterRef.current = audioContext.createBiquadFilter();
                     highShelfFilterRef.current.type = "highshelf";
                     highShelfFilterRef.current.frequency.value = 4000;
                 }
-
-                // Selalu putuskan koneksi lama sebelum menyambungkan kembali untuk menghindari duplikasi
                 sourceNodeRef.current.disconnect();
                 gainNodeRef.current.disconnect();
                 lowShelfFilterRef.current.disconnect();
                 peakingFilterRef.current.disconnect();
-                // highShelfFilterRef.current tidak perlu disconnect() dari node sebelumnya karena ia adalah yang terakhir sebelum destination
-
                 try {
                     sourceNodeRef.current.connect(gainNodeRef.current);
                     gainNodeRef.current.connect(lowShelfFilterRef.current);
                     lowShelfFilterRef.current.connect(peakingFilterRef.current);
                     peakingFilterRef.current.connect(highShelfFilterRef.current);
                     highShelfFilterRef.current.connect(audioContext.destination);
-                } catch (e) {
-                    console.error("Error connecting audio nodes:", e);
-                }
-            }, []); // Hanya berjalan sekali saat mount
+                } catch (e) { console.error("Error connecting audio nodes:", e); }
+            }, []); // Should ideally re-run if audio element changes, but audioRef.current is stable.
 
             useEffect(() => {
                 if (!lowShelfFilterRef.current || !peakingFilterRef.current || !highShelfFilterRef.current) return;
@@ -302,15 +269,10 @@
             }, [eqSettings]);
 
             useEffect(() => {
-                if (gainNodeRef.current) {
-                    gainNodeRef.current.gain.value = volume;
-                }
+                if (gainNodeRef.current) gainNodeRef.current.gain.value = volume;
             }, [volume]);
 
-            const handleSearchClick = () => {
-                setIsSearchActive((prev) => !prev);
-                if (isSearchActive) setSearchQuery("");
-            };
+            const handleSearchClick = () => { setIsSearchActive((prev) => !prev); if (isSearchActive) setSearchQuery(""); };
             const toggleSortDropup = () => setIsSortDropupOpen((prev) => !prev);
 
             const sortPlayListBy = (criteria) => {
@@ -318,19 +280,10 @@
                     const newPlaylist = [...prevPlaylist];
                     newPlaylist.sort((a, b) => {
                         let valA, valB;
-                        if (criteria === "title") {
-                            valA = (a.name || "").toLowerCase();
-                            valB = (b.name || "").toLowerCase();
-                        } else if (criteria === "artist") {
-                            valA = (a.metadata?.artist || a.name || "").toLowerCase();
-                            valB = (b.metadata?.artist || b.name || "").toLowerCase();
-                        } else if (criteria === "dateAdded") {
-                            valA = a.lastModified;
-                            valB = b.lastModified;
-                        }
-                        if (valA < valB) return -1;
-                        if (valA > valB) return 1;
-                        return 0;
+                        if (criteria === "title") { valA = (a.name || "").toLowerCase(); valB = (b.name || "").toLowerCase(); }
+                        else if (criteria === "artist") { valA = (a.metadata?.artist || a.name || "").toLowerCase(); valB = (b.metadata?.artist || b.name || "").toLowerCase(); }
+                        else if (criteria === "dateAdded") { valA = a.lastModified; valB = b.lastModified; }
+                        if (valA < valB) return -1; if (valA > valB) return 1; return 0;
                     });
                     return newPlaylist;
                 });
@@ -409,11 +362,21 @@
                 });
             };
 
-            const playNextSong = useCallback(() => {
+            const playNextSong = useCallback(async () => {
                 if (playlist.length === 0) return;
                 const audio = audioRef.current;
                 if (!audio) return;
-                if (audio.loop) return;
+                // Removed: if (audio.loop && isRepeating) return;
+                // Tombol Next harus selalu memutar lagu berikutnya.
+                // Logika repeat ditangani oleh handleAudioEnded & audio.loop.
+
+                console.log("playNextSong called.");
+                if (audioContextRef.current && audioContextRef.current.state === "suspended") {
+                    try {
+                        await audioContextRef.current.resume();
+                        console.log("AudioContext resumed in playNextSong.");
+                    } catch (e) { console.error("Error resuming AudioContext in playNextSong:", e); }
+                }
 
                 let nextIndex;
                 if (isShuffling) {
@@ -426,26 +389,45 @@
                     nextIndex = (currentSongIndex + 1) % playlist.length;
                 }
                 setCurrentSongIndex(nextIndex);
-                // setIsPlaying(true); // Biarkan song loading effect yang menangani play
-                // atau togglePlayPause jika pengguna mengklik tombol play secara eksplisit.
-                // Namun, untuk playNext, biasanya kita ingin langsung play.
-                // Untuk memastikan play, kita set isPlaying true, dan song loading effect akan play.
-                setIsPlaying(true);
-            }, [playlist, currentSongIndex, isShuffling, isRepeating]);
+                setIsPlaying(true); // Niat untuk memutar lagu berikutnya
+            }, [playlist, currentSongIndex, isShuffling, audioRef, audioContextRef]); // isRepeating dihapus karena tidak relevan untuk logika tombol next
 
+
+            const handleError = useCallback((event) => {
+                const audioElement = event.target;
+                console.error("Audio playback error event object:", event);
+                if (audioElement.error) {
+                    console.error("MediaError code:", audioElement.error.code, "Message:", audioElement.error.message);
+                } else {
+                    console.error("No MediaError object available on the audio element.");
+                }
+                setIsPlaying(false);
+            }, [setIsPlaying]); // setIsPlaying adalah stabil
 
             useEffect(() => {
                 const audio = audioRef.current;
                 if (!audio) return;
                 const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
                 const handleLoadedMetadata = () => setDuration(audio.duration);
-                const handleAudioEnded = () => {
-                    if (!isRepeating) playNextSong();
+
+                const handleAudioEnded = async () => {
+                    console.log("handleAudioEnded: Song finished. isRepeating:", isRepeating);
+                    if (!isRepeating) { // Hanya panggil playNextSong jika tidak berulang
+                        console.log("handleAudioEnded: Not repeating, calling playNextSong.");
+                        await playNextSong();
+                    } else {
+                        // Jika isRepeating true, audio.loop=true seharusnya sudah menangani loop otomatis.
+                        // Pastikan UI tetap sinkron jika perlu.
+                        if (audioRef.current && audioRef.current.loop) {
+                            // audio.play() mungkin diperlukan di sini jika browser tidak otomatis melanjutkan setelah loop
+                            // dan untuk memastikan state isPlaying tetap true.
+                            // Namun, useAudioStateSync akan menangani 'play' event jika browser melanjutkan.
+                            // Untuk keamanan, kita bisa set isPlaying true lagi di sini.
+                            setIsPlaying(true);
+                        }
+                    }
                 };
-                const handleError = (error) => {
-                    console.error("Audio playback error:", error);
-                    setIsPlaying(false);
-                };
+
                 audio.addEventListener('timeupdate', handleTimeUpdate);
                 audio.addEventListener('loadedmetadata', handleLoadedMetadata);
                 audio.addEventListener('ended', handleAudioEnded);
@@ -456,96 +438,114 @@
                     audio.removeEventListener('ended', handleAudioEnded);
                     audio.removeEventListener('error', handleError);
                 };
-            }, [playNextSong, isRepeating]);
+            }, [playNextSong, isRepeating, handleError]);
 
-            // *** MODIFIED useEffect for loading song ***
+
             useEffect(() => {
                 const audio = audioRef.current;
                 if (!audio) return;
 
+                console.log(`Song loading effect triggered. Index: ${currentSongIndex}, isRepeating: ${isRepeating}`);
+
                 if (currentObjectUrl.current) {
                     URL.revokeObjectURL(currentObjectUrl.current);
                     currentObjectUrl.current = null;
+                    console.log("Revoked old object URL");
                 }
 
                 if (currentSongIndex !== null && playlist[currentSongIndex]) {
                     const song = playlist[currentSongIndex];
+                    console.log(`Loading song: ${song.name}`);
                     const newObjectUrl = URL.createObjectURL(song);
                     currentObjectUrl.current = newObjectUrl;
+
                     audio.src = newObjectUrl;
                     audio.loop = isRepeating;
+                    console.log(`Set audio.src to new ObjectURL. isRepeating: ${isRepeating}, audio.loop: ${audio.loop}`);
 
                     jsmediatags.read(song, {
                         onSuccess: function (tag) {
                             const title = tag.tags.title || song.name.split('.').slice(0, -1).join('.') || song.name;
                             const artist = tag.tags.artist || '';
-                            setSongTitle(title);
-                            setSongArtist(artist);
+                            setSongTitle(title); setSongArtist(artist);
                             if (tag.tags.picture) {
                                 const base64String = arrayBufferToBase64(tag.tags.picture.data);
                                 setAlbumArtUrl(`data:${tag.tags.picture.format};base64,${base64String}`);
-                            } else {
-                                setAlbumArtUrl("https://placehold.co/200x200/bec8e4/9baacf?text=No+Art");
-                            }
+                            } else { setAlbumArtUrl("https://placehold.co/200x200/bec8e4/9baacf?text=No+Art"); }
                         },
                         onError: function (error) {
                             console.error("Error reading media tags:", error);
                             setSongTitle(song.name.split('.').slice(0, -1).join('.') || song.name);
-                            setSongArtist("");
-                            setAlbumArtUrl("https://placehold.co/200x200/bec8e4/9baacf?text=No+Art");
+                            setSongArtist(""); setAlbumArtUrl("https://placehold.co/200x200/bec8e4/9baacf?text=No+Art");
                         }
                     });
 
-                    // Fungsi untuk mencoba memainkan audio setelah siap
                     const attemptPlayOnLoad = async () => {
-                        try {
-                            // Selalu coba resume AudioContext sebelum play, penting untuk mobile
-                            if (audioContextRef.current && audioContextRef.current.state === "suspended") {
-                                await audioContextRef.current.resume();
-                                console.log("AudioContext resumed in attemptPlayOnLoad (song load effect)");
+                        // --- FIX: Gunakan isPlayingRef.current ---
+                        console.log(`attemptPlayOnLoad: Called. Current isPlaying (from ref): ${isPlayingRef.current}, audio.readyState: ${audio.readyState}, audio.src: ${audio.src ? 'set' : 'not set'}`);
+                        if (audioContextRef.current) {
+                            console.log(`attemptPlayOnLoad: AudioContext state before resume: ${audioContextRef.current.state}`);
+                            if (audioContextRef.current.state === "suspended") {
+                                try {
+                                    await audioContextRef.current.resume();
+                                    console.log("attemptPlayOnLoad: AudioContext resumed successfully.");
+                                } catch (e) { console.error("attemptPlayOnLoad: Error resuming AudioContext:", e); }
                             }
-                            // Hanya coba play jika isPlaying true dan audio memiliki cukup data
-                            if (isPlaying && audio.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) { // HAVE_ENOUGH_DATA lebih ketat
+                        } else { console.warn("attemptPlayOnLoad: AudioContext ref is null."); }
+
+                        // --- FIX: Gunakan isPlayingRef.current ---
+                        if (isPlayingRef.current && audio.src && audio.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA) {
+                            console.log("attemptPlayOnLoad: Conditions met (using ref). Attempting audio.play().");
+                            try {
                                 await audio.play();
-                            } else if (isPlaying) {
-                                console.log("Song load effect: isPlaying true, but audio not ready enough. Play will be attempted by canplaythrough or direct play command.");
+                                console.log("attemptPlayOnLoad: audio.play() promise resolved. Audio should be playing.");
+                            } catch (error) {
+                                console.error("attemptPlayOnLoad: Error during audio.play(): Name:", error.name, "Message:", error.message);
+                                if (error.name === 'NotAllowedError') {
+                                    console.warn("Autoplay was prevented by browser policy for the new song.");
+                                    setIsPlaying(false); // Update state jika autoplay dicegah
+                                }
+                                // Error lain akan ditangani oleh listener 'error' global pada elemen audio
                             }
-                        } catch (error) {
-                            console.error("Autoplay error in song load effect:", error);
-                            setIsPlaying(false); // Koreksi state jika autoplay gagal
+                        } else {
+                            let logMessage = "attemptPlayOnLoad: Conditions NOT met for play. ";
+                            if (!isPlayingRef.current) logMessage += "isPlaying (from ref) is false. "; // FIX: Gunakan isPlayingRef.current
+                            if (!audio.src) logMessage += "audio.src is not set. ";
+                            if (audio.readyState < HTMLMediaElement.HAVE_ENOUGH_DATA) logMessage += `audio.readyState is ${audio.readyState}. `;
+                            console.log(logMessage);
                         }
                     };
 
                     const handleCanPlay = () => {
                         setDuration(audio.duration);
-                        if (isPlaying) { // Jika state mengindikasikan harus play
+                        // --- FIX: Gunakan isPlayingRef.current ---
+                        console.log(`handleCanPlay: Song is ready (canplaythrough). isPlaying (from ref): ${isPlayingRef.current}, currentSong: ${song.name}, duration: ${audio.duration}`);
+                        if (isPlayingRef.current) { // --- FIX: Gunakan isPlayingRef.current ---
                             attemptPlayOnLoad();
                         }
                     };
 
-                    audio.load(); // Panggil load() setelah src di-set
-                    // Menggunakan 'canplaythrough' mungkin lebih baik untuk mobile untuk memastikan buffering cukup
+                    console.log("Calling audio.load()");
+                    audio.load(); // Penting untuk memuat sumber baru
                     audio.addEventListener('canplaythrough', handleCanPlay, { once: true });
 
                     return () => {
+                        console.log("Cleanup song loading effect: Removing canplaythrough listener.");
                         audio.removeEventListener('canplaythrough', handleCanPlay);
                     };
 
                 } else {
-                    audio.src = "";
-                    setIsPlaying(false);
+                    console.log("No song selected or playlist empty. Clearing audio src.");
+                    if (audio.src) audio.src = ""; // Hanya set jika memang ada src sebelumnya
+                    // setIsPlaying(false); // useAudioStateSync akan menangani jika audio berhenti
                     setSongTitle("Tidak ada lagu yang sedang diputar");
                     setSongArtist("");
                     setAlbumArtUrl("https://placehold.co/200x200/bec8e4/9baacf?text=No+Art");
                     setCurrentTime(0);
                     setDuration(0);
                 }
-            }, [currentSongIndex, playlist, isRepeating]); // isPlaying DIHAPUS dari dependensi ini, karena efek ini tentang MEMUAT lagu.
-            // Keputusan untuk PLAY setelah load bergantung pada state isPlaying saat itu.
+            }, [currentSongIndex, playlist, isRepeating, audioRef, audioContextRef]); // Dependencies untuk memuat lagu
 
-            // useEffect untuk play/pause berdasarkan isPlaying SUDAH TIDAK DIPERLUKAN LAGI
-            // karena togglePlayPause dan attemptPlayOnLoad di song loading effect menanganinya.
-            // useAudioStateSync akan menjaga isPlaying tetap sinkron dengan event audio element.
 
             const handleFileChange = (event) => {
                 const files = Array.from(event.target.files);
@@ -555,9 +555,7 @@
                     setPlaylist(newPlaylist);
                     if (currentSongIndex === null || currentSongIndex >= newPlaylist.length) {
                         setCurrentSongIndex(0);
-                        // Jika sebelumnya tidak ada lagu atau indeks tidak valid, mainkan lagu pertama jika isPlaying true
-                        // Jika tidak, biarkan paused.
-                        // Jika isPlaying sudah true, song loading effect akan mencoba memainkannya.
+                        setIsPlaying(false); // Set isPlaying false saat playlist baru dimuat, biarkan pengguna memulai
                     }
                 }
                 if (fileInputRef.current) fileInputRef.current.value = "";
@@ -582,6 +580,7 @@
                             }
                             if (currentSongIndex === null && updatedPlaylist.length > 0) {
                                 setCurrentSongIndex(0);
+                                setIsPlaying(false); // Biarkan pengguna memulai
                             } else if (currentSongIndex !== null && isShuffling) {
                                 const currentActualSong = prevPlaylist[currentSongIndex];
                                 const newIdx = updatedPlaylist.findIndex(s => s === currentActualSong);
@@ -595,82 +594,68 @@
                 input.click();
             };
 
-            // *** MODIFIED togglePlayPause ***
             const togglePlayPause = useCallback(async () => {
                 if (playlist.length === 0 || currentSongIndex === null) {
-                    setIsPlaying(false);
-                    return;
+                    setIsPlaying(false); return;
                 }
                 const audio = audioRef.current;
-                if (!audio) {
-                    console.warn("togglePlayPause: audioRef.current is null");
-                    setIsPlaying(false);
-                    return;
-                }
-
+                if (!audio) { setIsPlaying(false); return; }
+                console.log(`togglePlayPause called. Current isPlaying (from ref): ${isPlayingRef.current}. Audio src: ${audio.src ? 'set' : 'not set'}, readyState: ${audio.readyState}`);
                 try {
-                    // Selalu coba resume AudioContext, terutama untuk interaksi pertama di mobile
                     if (audioContextRef.current && audioContextRef.current.state === "suspended") {
                         await audioContextRef.current.resume();
                         console.log("AudioContext resumed in togglePlayPause");
                     }
-
-                    if (!isPlaying) { // Jika ingin PLAY
-                        if (audio.src && audio.readyState >= HTMLMediaElement.HAVE_METADATA) { // Pastikan src ada & metadata siap
+                    // Gunakan isPlayingRef.current untuk keputusan play/pause
+                    if (!isPlayingRef.current) { // Jika ingin PLAY
+                        if (audio.src && audio.readyState >= HTMLMediaElement.HAVE_METADATA) {
+                            console.log("Attempting to play existing audio source.");
                             await audio.play();
-                            // setIsPlaying(true); // useAudioStateSync akan menangani ini dari event 'play'
+                            // setIsPlaying(true) akan di-set oleh useAudioStateSync
                         } else if (audio.src) {
-                            // src ada tapi belum siap, coba load dan biarkan canplaythrough menangani play
+                            console.log("Audio source exists but not ready. Calling audio.load() and setting isPlaying intent to true.");
                             audio.load();
-                            setIsPlaying(true); // Set intent untuk play, biarkan song effect yg handle
-                            console.log("togglePlayPause: Audio not fully ready, set isPlaying true, relying on canplaythrough.");
-                        } else {
-                            console.warn("togglePlayPause: No audio source to play.");
-                            setIsPlaying(false);
-                        }
+                            setIsPlaying(true); // Niat untuk play, biarkan canplaythrough menangani
+                        } else { setIsPlaying(false); }
                     } else { // Jika ingin PAUSE
                         if (!audio.paused) {
+                            console.log("Attempting to pause audio.");
                             audio.pause();
+                            // setIsPlaying(false) akan di-set oleh useAudioStateSync
                         }
-                        // setIsPlaying(false); // useAudioStateSync akan menangani ini dari event 'pause'
                     }
                 } catch (error) {
                     console.error("Error in togglePlayPause (play/pause attempt):", error);
-                    setIsPlaying(false); // Jika error, pastikan state isPlaying false
+                    setIsPlaying(false);
                 }
-            }, [playlist, currentSongIndex, isPlaying, audioRef]); // isPlaying sekarang jadi dependency
+            }, [playlist, currentSongIndex, audioRef, audioContextRef]); // isPlaying (state) dihapus, isPlayingRef digunakan di dalam
 
-            // *** MODIFIED playSong ***
             const playSong = useCallback(async (indexInFiltered) => {
                 const actualIndex = playlist.indexOf(filteredPlaylist[indexInFiltered]);
                 if (actualIndex === -1) return;
-
                 const audio = audioRef.current;
                 if (!audio) return;
-
+                console.log(`playSong called for index ${actualIndex}. Current index: ${currentSongIndex}`);
                 try {
-                    // Selalu coba resume AudioContext
                     if (audioContextRef.current && audioContextRef.current.state === "suspended") {
                         await audioContextRef.current.resume();
-                        console.log("AudioContext resumed in playSong");
                     }
-
                     if (actualIndex !== currentSongIndex) {
                         setCurrentSongIndex(actualIndex);
-                        setIsPlaying(true); // Set intent untuk play, song loading effect akan menangani play aktual
+                        setIsPlaying(true); // Niat untuk play lagu baru
                     } else {
-                        // Jika lagu yang sama diklik, panggil togglePlayPause
-                        await togglePlayPause();
+                        await togglePlayPause(); // Toggle jika lagu yang sama diklik
                     }
-                } catch (error) {
-                    console.error("Error in playSong:", error);
-                    setIsPlaying(false);
-                }
-            }, [playlist, filteredPlaylist, currentSongIndex, togglePlayPause]); // togglePlayPause ditambahkan sbg dependency
+                } catch (error) { setIsPlaying(false); }
+            }, [playlist, filteredPlaylist, currentSongIndex, togglePlayPause]);
 
-
-            const playPreviousSong = async () => { // Jadikan async untuk konsistensi jika ada await di dalamnya
+            const playPreviousSong = async () => {
                 if (playlist.length === 0) return;
+                console.log("playPreviousSong called.");
+                if (audioContextRef.current && audioContextRef.current.state === "suspended") {
+                    try { await audioContextRef.current.resume(); }
+                    catch (e) { console.error("Error resuming context in playPreviousSong", e); }
+                }
                 let prevIndex;
                 if (isShuffling) {
                     if (playlist.length <= 1) prevIndex = 0;
@@ -678,29 +663,17 @@
                         do { prevIndex = Math.floor(Math.random() * playlist.length); }
                         while (playlist.length > 1 && prevIndex === currentSongIndex);
                     }
-                } else {
-                    prevIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
-                }
-
-                // Coba resume context sebelum mengganti lagu
-                if (audioContextRef.current && audioContextRef.current.state === "suspended") {
-                    try {
-                        await audioContextRef.current.resume();
-                        console.log("AudioContext resumed in playPreviousSong");
-                    } catch (e) {
-                        console.error("Error resuming context in playPreviousSong", e);
-                    }
-                }
-
+                } else { prevIndex = (currentSongIndex - 1 + playlist.length) % playlist.length; }
                 setCurrentSongIndex(prevIndex);
-                setIsPlaying(true); // Set intent untuk play
+                setIsPlaying(true);
             };
 
             const handleProgressBarChange = (e) => {
                 const audio = audioRef.current;
-                if (!audio || isNaN(audio.duration)) return;
+                if (!audio || isNaN(audio.duration) || audio.duration === 0) return;
                 const newTime = parseFloat(e.target.value);
                 audio.currentTime = newTime;
+                // setCurrentTime(newTime); // Diupdate oleh event 'timeupdate'
             };
 
             const handleVolumeChange = (e) => {
@@ -715,23 +688,21 @@
                 return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
             };
 
-            const toggleSidebar = () => {
-                setIsSidebarOpen((prevState) => !prevState);
-                setIsEQSidebarOpen(false);
-            };
-            const handleCloseBothSidebars = () => {
-                setIsSidebarOpen(false);
-                setIsEQSidebarOpen(false);
-            };
+            const toggleSidebar = () => { setIsSidebarOpen((prevState) => !prevState); setIsEQSidebarOpen(false); };
+            const handleCloseBothSidebars = () => { setIsSidebarOpen(false); setIsEQSidebarOpen(false); };
 
             const handleDeleteSong = (indexToDeleteInOriginal, event) => {
                 event.stopPropagation();
                 setPlaylist((prevPlaylist) => {
+                    const songToDelete = prevPlaylist[indexToDeleteInOriginal];
                     const newPlaylist = prevPlaylist.filter((_, idx) => idx !== indexToDeleteInOriginal);
                     if (newPlaylist.length === 0) {
                         setCurrentSongIndex(null);
+                        // setIsPlaying(false); // Akan diurus oleh song loading effect & useAudioStateSync
                     } else if (currentSongIndex === indexToDeleteInOriginal) {
-                        setCurrentSongIndex(indexToDeleteInOriginal % newPlaylist.length);
+                        const newIndexToPlay = indexToDeleteInOriginal % newPlaylist.length;
+                        setCurrentSongIndex(newIndexToPlay);
+                        // isPlaying state akan dipertahankan jika sebelumnya true, song loading effect akan mencoba play.
                     } else if (currentSongIndex > indexToDeleteInOriginal) {
                         setCurrentSongIndex(currentSongIndex - 1);
                     }
@@ -742,6 +713,7 @@
             const clearPlayList = () => {
                 setPlaylist([]);
                 setCurrentSongIndex(null);
+                // setIsPlaying(false); // Akan diurus oleh song loading effect & useAudioStateSync
                 setSearchQuery("");
                 setIsRepeating(false);
                 setIsShuffling(false);
@@ -830,7 +802,7 @@
                                             >
                                                 <div
                                                     className="playlist-item-inner"
-                                                    onClick={() => playSong(index)} // playSong sudah useCallback
+                                                    onClick={() => playSong(index)}
                                                 >
                                                     <span className="playlist-song-name">
                                                         {song.name.split(".").slice(0, -1).join(".") || song.name}
@@ -968,7 +940,6 @@
                             </div>
                         </div>
                     </div>
-                    {/* preload="metadata" penting agar durasi dan info lain bisa didapat sebelum play */}
                     <audio ref={audioRef} preload="metadata"></audio>
                 </div>
             );
