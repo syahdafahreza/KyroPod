@@ -29,6 +29,6 @@
     "background_color": "#bec8e4",
     "display": "standalone",
     "scope": "/KyroPod/",
-    "theme_color": "#9baacf",
+    "theme_color": "#e4ebf5",
     "description": "A neuromorphic design music player."
   }
