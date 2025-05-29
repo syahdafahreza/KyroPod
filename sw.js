@@ -1,17 +1,17 @@
 // sw.js - A basic service worker
 const CACHE_NAME = 'kyropod-cache-v1';
 const urlsToCache = [
-  '/kyropod/',
-  '/kyropod/themes/neuromorphic.css',
-  '/kyropod/svg/compact-disc-solid-light.svg',
-  '/kyropod/svg/compact-disc-solid-dark.svg',
+  '/KyroPod/',
+  '/KyroPod/themes/neuromorphic.css',
+  '/KyroPod/svg/compact-disc-solid-light.svg',
+  '/KyroPod/svg/compact-disc-solid-dark.svg',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css',
   'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap',
   'https://unpkg.com/react@18/umd/react.production.min.js',
   'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
   'https://unpkg.com/@babel/standalone/babel.min.js',
   'https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js',
-  '/kyropod/manifest.json',
+  '/KyroPod/manifest.json',
   'https://syahdafahreza.github.io/assets/icons/icon192.png',
   'https://syahdafahreza.github.io/assets/icons/icon512.png'
 ];
