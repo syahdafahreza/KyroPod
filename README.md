@@ -1,5 +1,5 @@
 # KyroPod
 Simple ReactJS music player with neuromorphic UI
-![image](https://github.com/user-attachments/assets/460aeccf-7c16-4221-9446-553f41572f90)
-![image](https://github.com/user-attachments/assets/45902852-1683-46d8-bac0-6dd76cdfa689)
-![image](https://github.com/user-attachments/assets/826d9ae3-b0a7-4bd3-97be-027d14cd29c4)
+![image](https://github.com/user-attachments/assets/f054296b-75f0-4da7-b299-f4182667a426)
+![image](https://github.com/user-attachments/assets/0cc22310-28bc-4850-8691-57d6281cee26)
+![image](https://github.com/user-attachments/assets/18d51ea2-393e-4e2a-b3d8-72d49f3ea06b)
