@@ -702,39 +702,52 @@
 
             const togglePlayPause = useCallback(async () => {
                 if (playlist.length === 0 || currentSongIndex === null) {
-                    setIsPlaying(false); return;
+                    // If no song is selected but playlist has items, perhaps select the first one?
+                    // For now, if currentSongIndex is null, and play is pressed, it does nothing.
+                    // User should click a song in the playlist first if currentSongIndex is null.
+                    setIsPlaying(false);
+                    return;
                 }
+
                 const audio = audioRef.current;
-                if (!audio) { setIsPlaying(false); return; }
+                if (!audio) {
+                    setIsPlaying(false);
+                    return;
+                }
 
                 try {
                     if (audioContextRef.current && audioContextRef.current.state === "suspended") {
                         await audioContextRef.current.resume();
                     }
 
-                    if (!isPlayingRef.current) { // If intent is to PLAY
+                    if (!isPlayingRef.current) { // If intent is to PLAY (currently paused/stopped)
                         if (audio.src && audio.readyState >= HTMLMediaElement.HAVE_METADATA) {
+                            // Song is loaded (or at least metadata is available), just paused.
+                            // Force a re-trigger of the song loading effect to refresh metadata,
+                            // especially if replaying the same song that just ended.
+                            setCurrentSongIndex(idx => idx); // <--- KEY CHANGE FOR REPLAY METADATA
                             await audio.play();
-                        } else if (audio.src) { // Src exists but not ready
-                            audio.load(); // Ensure it's loading
-                            setIsPlaying(true); // Set intent, let canplaythrough handle actual play
-                        } else if (playlist[currentSongIndex]) { // No src, but song exists (e.g. first play after selection)
-                            setIsPlaying(true); // Set intent, song loading effect will pick it up
-                            // Force re-trigger of song loading effect if src wasn't set yet
-                            setCurrentSongIndex(idx => idx);
+                            // setIsPlaying(true) will be handled by useAudioStateSync via 'play' event
+                        } else if (playlist[currentSongIndex]) { // No src, or src but not ready. Song needs full load/reload.
+                            // This also covers the case where src might have been cleared.
+                            setIsPlaying(true); // Set intent to play *before* triggering effect.
+                            // So isPlayingRef.current will be true when the song loading effect runs.
+                            setCurrentSongIndex(idx => idx); // Trigger song loading effect (which sets src and plays)
                         } else {
-                            setIsPlaying(false); // Cannot play
+                            // Should not happen if currentSongIndex is valid and playlist has items.
+                            setIsPlaying(false);
                         }
                     } else { // If intent is to PAUSE
                         if (!audio.paused) {
                             audio.pause();
+                            // setIsPlaying(false) will be handled by useAudioStateSync via 'pause' event
                         }
                     }
                 } catch (error) {
                     console.error("Error in togglePlayPause (play/pause attempt):", error);
-                    setIsPlaying(false);
+                    setIsPlaying(false); // Ensure UI reflects paused state on error
                 }
-            }, [playlist, currentSongIndex, audioRef, audioContextRef]);
+            }, [playlist, currentSongIndex, audioRef, audioContextRef /* setIsPlaying not needed as dep here */]);
 
             const playSong = useCallback(async (indexInFiltered) => {
                 const actualIndex = playlist.indexOf(filteredPlaylist[indexInFiltered]);
