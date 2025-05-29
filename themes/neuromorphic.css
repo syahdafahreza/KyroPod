@@ -40,6 +40,8 @@ html {
   font-size: 62.5%;
   overflow-y: scroll;
   background: var(--greyLight-1);
+  scrollbar-width: auto;
+  scrollbar-color: var(--primary) var(--greyLight-1)!important;
 }
 
 /* Font Weights */
@@ -229,6 +231,22 @@ html {
   }
 }
 
+@media (prefers-color-scheme: dark) {
+  html {
+    background: var(--dark-bg);
+    scrollbar-color: var(--dark-scroll-thumb) var(--dark-scroll-track);
+  }
+
+  html::-webkit-scrollbar-track {
+    background: var(--dark-scroll-track);
+  }
+
+  html::-webkit-scrollbar-thumb {
+    background-color: var(--dark-scroll-thumb);
+    border: 0.2rem solid var(--dark-scroll-thumb-border);
+  }
+}
+
 .container {
   min-height: 100vh;
   display: flex;
@@ -239,7 +257,6 @@ html {
   gap: 2rem;
   padding: 2rem;
   height: 50rem;
-  border-radius: 3rem;
 }
 
 .button-container-flex {
@@ -849,10 +866,20 @@ html {
   appearance: none;
   width: 2rem; /* Original width */
   height: 2rem; /* Original height */
-  border-radius: 50%; /* Make it circular */
+  border-radius: 50%;
+  box-shadow: none; /* Make it circular */
   background: none; /* Original thumb background color */
   cursor: pointer; /* Original thumb shadow */
   margin-top: -0.5rem; /* Vertically center thumb over the 1rem track: (track_height - thumb_height) / 2 = (1rem - 2rem) / 2 = -0.5rem */
+}
+.progress-slider::-moz-range-thumb {
+  width: 0; /* Set width to 0 */
+  height: 0; /* Set height to 0 */
+  border-radius: 50%;
+  background: transparent;
+  appearance: none; /* Make background transparent */
+  cursor: pointer;
+  border: 0; /* Ensure no border is visible */
 }
 .slider__box {
   width: 100%;
