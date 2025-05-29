@@ -1,22 +1,19 @@
 // sw.js - A basic service worker
-
 const CACHE_NAME = 'kyropod-cache-v1';
 const urlsToCache = [
-  '/', // Or '/index.php'
-  '/themes/neuromorphic.css',
-  '/svg/compact-disc-solid-light.svg',
-  '/svg/compact-disc-solid-dark.svg',
-  // Add other essential assets like your PNG icons, JavaScript files if they are local
+  '/kyropod/',
+  '/kyropod/themes/neuromorphic.css',
+  '/kyropod/svg/compact-disc-solid-light.svg',
+  '/kyropod/svg/compact-disc-solid-dark.svg',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css',
   'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap',
   'https://unpkg.com/react@18/umd/react.production.min.js',
   'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
   'https://unpkg.com/@babel/standalone/babel.min.js',
   'https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js',
-  // Add the paths to your manifest.json and the PNG icons you created
-  '/manifest.json',
-  'path/to/your/icon192.png',
-  'path/to/your/icon512.png'
+  '/kyropod/manifest.json',
+  'https://syahdafahreza.github.io/assets/icons/icon192.png',
+  'https://syahdafahreza.github.io/assets/icons/icon512.png'
 ];
 
 // Install event: cache essential assets
