@@ -41,7 +41,7 @@ html {
   overflow-y: scroll;
   background: var(--greyLight-1);
   scrollbar-width: auto;
-  scrollbar-color: var(--primary) var(--greyLight-1)!important;
+  scrollbar-color: var(--primary) var(--greyLight-1) !important;
 }
 
 /* Font Weights */
@@ -224,6 +224,91 @@ html {
 .mx-5 {
   margin-left: 3rem !important;
 }
+
+/* --- CSS for Volume Flyout --- */
+.volume-flyout-container {
+  position: fixed;
+  bottom: 30px; /* Distance from the bottom of the screen */
+  left: 50%;
+  /* Initial state: centered horizontally, but shifted down (off-screen or starting point of animation) and transparent */
+  transform: translate(
+    -50%,
+    70px
+  ); /* Starts 70px below its final resting place */
+  opacity: 0;
+  z-index: 2000; /* Ensure it's above other elements */
+  padding: 12px 20px;
+  background-color: var(--greyLight-1); /* Modern dark, slightly transparent background */
+  color: var(--greyDark); /* Light text color for contrast */
+  border-radius: 12px; /* Rounded corners */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25), 0 4px 10px rgba(0, 0, 0, 0.15); /* Softer, modern shadow */
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out; /* Smooth transitions for fly-in/out */
+  pointer-events: none; /* Allow clicks to pass through when hidden/animating */
+  min-width: 220px; /* Minimum width to accommodate content nicely */
+  box-sizing: border-box;
+}
+
+.volume-flyout-container.visible {
+  opacity: 1;
+  transform: translate(
+    -50%,
+    0
+  ); /* Final position: centered and at 'bottom: 30px' */
+  pointer-events: auto; /* Allow interaction when visible */
+}
+
+.volume-flyout-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Distribute space */
+  gap: 12px; /* Space between icon, bar, and value */
+}
+
+.volume-flyout-content i {
+  font-size: 1.3em; /* Your existing font size */
+  flex-shrink: 0;   /* Keep this to prevent shrinking */
+  width: 1.6em;     /* FIXED WIDTH: Adjust this value (e.g., 1.5em, 25px)
+                       to be wide enough for your largest/widest icon.
+                       Using 'em' keeps it relative to the font size. */
+  text-align: center; /* Centers the icon glyph within its fixed-width box */
+  display: inline-flex; /* Helps with vertical alignment and consistent box behavior */
+  align-items: center;
+  justify-content: center;
+}
+
+.volume-flyout-bar-wrapper {
+  flex-grow: 0;
+  width: 100px; /* Allow bar to take available space */
+  height: 10px; /* Height of the volume bar track */
+  background-color: rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+    inset -0.2rem -0.2rem 0.5rem var(--white); /* Lighter track for the bar */
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.volume-flyout-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  background: linear-gradient(
+    -1deg,
+    var(--primary-dark) 0%,
+    var(--primary) 50%,
+    var(--primary-light) 100%
+  ); /* A vibrant accent color (e.g., iOS blue) */
+  /* You can use your theme's accent color: var(--accent-color, #007aff); */
+  border-radius: 5px;
+  transition: width 0.15s linear; /* Fast and smooth transition for bar fill */
+}
+
+.volume-flyout-value {
+  font-size: 1em;    /* Your existing font size */
+  font-weight: 500;  /* Your existing font weight */
+  min-width: 35px; /* Remove or comment out min-width if you used it */
+  text-align: right; /* Keep this: aligns numbers (0, 10, 100) to the right within the box */
+  flex-shrink: 0;    /* Keep this to prevent shrinking */
+}
+/* --- End of CSS for Volume Flyout --- */
 
 @media screen and (min-width: 900px) {
   html {
