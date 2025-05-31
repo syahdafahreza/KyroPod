@@ -310,6 +310,185 @@ html {
 }
 /* --- End of CSS for Volume Flyout --- */
 
+/* CSS untuk Splash Screen */
+#splash-screen {
+  position: fixed; /* Tetap di posisi yang sama saat scrolling */
+  top: 0;
+  left: 0;
+  width: 100vw; /* Lebar penuh viewport */
+  height: 100vh; /* Tinggi penuh viewport */
+  background-color: var(--greyLight-1); /* Menggunakan variabel warna dari CSS Anda */
+  display: flex;
+  flex-direction: column; /* Susun elemen secara vertikal */
+  justify-content: center; /* Pusatkan secara vertikal */
+  align-items: center; /* Pusatkan secara horizontal */
+  z-index: 9999; /* Pastikan di atas elemen lain */
+  opacity: 1;
+  transition: opacity 0.5s ease-out; /* Transisi untuk menghilang */
+}
+
+#splash-screen.hidden {
+  opacity: 0;
+  pointer-events: none; /* Agar tidak bisa diklik setelah disembunyikan */
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--greyLight-1); /* Memberikan dasar warna pada spinner, sesuaikan dengan bg splash screen */
+
+  /* Shadow untuk container spinner (track), sama seperti .slider__box */
+  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
+              inset -0.2rem -0.2rem 0.5rem var(--white); /* */
+  position: relative; /* Diperlukan untuk memposisikan pseudo-element ::before */
+  margin-bottom: 20px; /* Jarak dari teks loading */
+}
+
+/* Bagian DINAMIS dari Spinner (Arc yang Berputar dengan Warna) */
+.spinner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%; /* Membuatnya bundar */
+
+  /* Warna spinner (arc yang berputar), menggunakan conic-gradient yang meniru .slider__color */
+  /* Ini akan membuat segmen/arc berwarna (misalnya 90 derajat) dengan gradient yang diinginkan,
+     dan sisa lingkaran akan transparan. */
+  background: conic-gradient(
+    from 0deg, /* Titik awal conic gradient */
+    var(--primary-dark) 0deg,    /* Warna awal gradient di 0 derajat */
+    var(--primary) 45deg,        /* Warna tengah gradient di 45 derajat (tengah dari arc 90 derajat) */
+    var(--primary-light) 90deg,  /* Warna akhir gradient di 90 derajat */
+    transparent 90.01deg,      /* Mulai transparan setelah arc 90 derajat */
+    transparent 360deg         /* Sisa lingkaran transparan */
+  );
+
+  /* Membuat efek "cincin" atau "ring" dengan memotong bagian tengah.
+     Ketebalan arc/cincin akan sekitar 7px jika spinner berukuran 60px.
+     calc(50% - 7px) menghasilkan radius dalam sekitar 23px untuk spinner 60px.
+  */
+  -webkit-mask: radial-gradient(transparent calc(50% - 5px), white calc(50% - 7px));
+  mask: radial-gradient(transparent calc(50% - 5px), white calc(50% - 7px));
+  /* Penjelasan mask:
+     - 'transparent calc(50% - 7px)': Bagian tengah (hingga radius 23px) akan transparan (terpotong).
+     - 'white calc(50% - 7px)': Bagian luar (dari radius 23px ke tepi) akan opak (terlihat).
+  */
+
+  animation: spin 1s linear infinite; /* Animasi berputar yang sudah ada */
+}
+
+.splash-preview-container {
+  min-height: 100vh;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+  background: var(--greyLight-1);
+  gap: 2rem;
+  padding: 2rem;
+  height: 50rem;
+}
+
+/* Preview for Playlist Card on Splash Screen */
+.splash-playlist-card-preview {
+  background: var(--greyLight-1);
+  border-radius: 3rem;
+  box-shadow: 0.8rem 0.8rem 1.4rem var(--greyLight-2),
+    -0.2rem -0.2rem 1.8rem var(--white);
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centers content (the image) vertically */
+  align-items: center;
+  overflow: hidden;
+  height: 12%;
+  flex: 0 0 28rem;
+  max-width: 6rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease-in-out;
+  position: relative;
+}
+
+.splash-playlist-card-preview img.splash-icon {
+  max-width: 100%; /* Adjust percentage to control size relative to parent's content box */
+  max-height: 100%; /* Adjust percentage to control size relative to parent's content box */
+  object-fit: contain; /* Ensures the image scales down to fit, maintaining aspect ratio */
+}
+
+/* Preview for Player Card on Splash Screen */
+.splash-player-card-preview {
+  background: var(--greyLight-1);
+  border-radius: 3rem;
+  box-shadow: 0.8rem 0.8rem 1.4rem var(--greyLight-2),
+    -0.2rem -0.2rem 1.8rem var(--white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Make sure these are updated from previous responses */
+  justify-content: flex-start; /* Changed to flex-start */
+  gap: 1.5rem; /* Added gap */
+  padding: 2rem;
+  position: relative;
+  flex: 1;
+  height: 12%;
+  width: 100%;
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+/* Pastikan @keyframes spin masih ada */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#splash-screen p {
+  font-size: 1.8rem; /* Ukuran font teks loading */
+  color: var(--greyDark); /* Warna teks loading */
+  font-family: "Poppins", sans-serif; /* Menggunakan font yang sama dengan aplikasi Anda */
+}
+/* End of SplashScreen */
+
+.hidden-temporarily {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  /* Add transition for smooth hiding/showing */
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  visibility: hidden; /* Ensure it's not clickable and doesn't take up space */
+}
+
+/* CSS for Splash Screen Loading Bar */
+.loading-bar-container-splash {
+  width: 100%; /* Adjust width as needed, relative to splash-player-card-preview */
+  height: 10px; /* Adjust height as needed */
+  background-color: var(--greyLight-2); /* Track color */
+  border-radius: 4px; /* Rounded corners for the track */
+  margin-top: 0.6rem; /* Space from the top edge of splash-player-card-preview */
+  overflow: hidden; /* Ensure fill stays within bounds */
+  box-shadow: var(--neumorphic-shadow-in-sm); /* Neumorphic inset shadow for the track */
+  position: relative; /* For potential future absolute positioning of text if needed */
+}
+
+.loading-bar-fill-splash {
+  width: 0%; /* Initial width, JavaScript will animate this */
+  height: 100%;
+  background: var(--primary); /* Fill color */
+  background: linear-gradient( /* Optional: Gradient for the fill */
+    -1deg,
+    var(--primary-dark) 0%,
+    var(--primary) 50%,
+    var(--primary-light) 100%
+  );
+  border-radius: 4px; /* Rounded corners for the fill */
+  transition: width 0.05s linear; /* Smooth but fast transition for width changes by JS */
+}
+/* SplashScreen loading */
+
 @media screen and (min-width: 900px) {
   html {
     font-size: 75%;
@@ -359,12 +538,13 @@ html {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  height: 100%;
+  height: 12%;
   flex: 0 0 28rem;
   max-width: 28rem;
   padding: 1.5rem;
   transition: all 0.3s ease-in-out;
-  position: relative; /* Added for positioning the logo */
+  position: relative;
+  animation: playerCardAppear 1s ease-in-out 2.8s forwards; /* Added for positioning the logo */
 }
 
 .playlist-card.collapsed {
@@ -379,7 +559,9 @@ html {
   align-items: center;
   margin-bottom: 1.5rem;
   flex-shrink: 0;
+  opacity: 0;
   transition: margin-bottom 0.3s ease-in-out;
+  animation: fadeIn 0.5s ease-out 3s forwards;
 }
 
 /* Equalizer Styles */
@@ -691,14 +873,23 @@ html {
   /* Make sure these are updated from previous responses */
   justify-content: flex-start; /* Changed to flex-start */
   gap: 1.5rem; /* Added gap */
-
+  animation: playerCardAppear 1s ease-in-out 3s forwards;
   padding: 2rem;
   position: relative;
   flex: 1;
-  height: 100%;
+  height: 12%;
   max-width: 100%;
   transition: all 0.3s ease-in-out;
   overflow: hidden;
+}
+
+@keyframes playerCardAppear {
+  0% {
+    height: 12%;
+  }
+  100% {
+    height: 100%;
+  }
 }
 
 .album-art-wrapper {
@@ -711,6 +902,8 @@ html {
   box-shadow: 0.8rem 0.8rem 1.4rem var(--greyLight-2),
     -0.2rem -0.2rem 1.8rem var(--white);
   overflow: hidden;
+  opacity: 0;
+  animation: fadeIn 1s ease-out 3.4s forwards;
   /* Ensure margin-bottom is removed or commented out here */
   /* margin-bottom: 2rem; /* Original - should be gone */
 }
@@ -733,6 +926,8 @@ html {
   text-overflow: ellipsis;
   max-width: 100%;
   width: 80%;
+  opacity: 0;
+  animation: fadeIn 1s ease-out 3.6s forwards;
 }
 
 .song-title {
@@ -932,6 +1127,8 @@ html {
   grid-row: 5/6;
   align-self: center;
   display: flex;
+  opacity: 0;
+  animation: fadeIn 1s ease-out 3.8s forwards;
   flex-direction: column;
 }
 .progress-slider {
@@ -1058,6 +1255,8 @@ html {
   align-items: center;
   justify-content: center;
   gap: 20px;
+  opacity: 0;
+  animation: fadeIn 1s ease-out 4s forwards;
   margin-bottom: 20px;
 }
 
@@ -1253,6 +1452,8 @@ html {
   width: 60%;
   display: flex;
   align-items: center;
+  opacity: 0;
+  animation: fadeIn 1s ease-out 4.2s forwards;
   gap: 1rem;
 }
 
@@ -1333,7 +1534,6 @@ html {
 
 .sidebar-toggle-btn,
 .search-toggle-btn {
-  /* Combined for similar base styles */
   width: 4.5rem;
   height: 4.5rem;
   border-radius: 50%;
@@ -1349,7 +1549,15 @@ html {
   background: var(--greyLight-1);
   outline: none;
   transition: opacity 0.3s ease-in-out;
-  z-index: 500; /* Ensure buttons are clickable */
+  z-index: 500;
+  opacity: 1;
+}
+
+/* 2. Create a new class to apply the initial animation specifically to the EQ toggle button */
+/* This class will be conditionally added in React */
+.sidebar-toggle-btn.apply-initial-fade {
+  opacity: 0; /* Start transparent for the animation */
+  animation: fadeIn 0.5s ease-out 4s forwards; /* Use your existing @keyframes fadeIn */
 }
 
 /* NEW RULE: Hide the equalizer toggle button when the equalizer sidebar is open */
@@ -1371,22 +1579,26 @@ html {
 
 /* Styles for the new logo */
 .playlist-card-logo {
-  display: none; /* Hidden by default */
+  display: none;
   position: absolute;
-  color: var(--primary); /* Logo color */
-  font-size: 2.4rem; /* Logo icon size */
-  z-index: 10; /* Ensure it's visible but doesn't obstruct crucial elements */
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-  /* Centering the icon within this container */
+  color: var(--primary);
+  font-size: 2.4rem;
+  z-index: 10;
+  transition: opacity 1s ease-in-out, transform 0.3s ease-in-out;
   align-items: center;
   justify-content: start;
+  opacity: 1;
+}
+
+/* 4. Create a new class to apply the initial animation specifically to the logo */
+/* This class will be conditionally added in React */
+.playlist-card-logo.apply-initial-fade {
+  opacity: 0; /* Start transparent for the animation */
+  animation: fadeIn 0.5s ease-out 4s forwards; /* Use your existing @keyframes fadeIn */
 }
 
 .playlist-card.collapsed .playlist-card-logo {
   display: flex; /* Use flex to center the icon */
-  opacity: 1;
-
   /* Default collapsed state (vertical strip on large screens) */
   /* The card is 6rem wide. padding: 1.5rem 0.5rem; */
   width: 100%; /* Take full width of parent for easier centering of rotated element */
@@ -1397,6 +1609,14 @@ html {
   transform-origin: center; /* Rotate the container */
 }
 
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 /* Responsive adjustments */
 @media (max-width: 960px) {
   .container {
@@ -1437,26 +1657,18 @@ html {
 
   /* Logo adjustments for horizontal collapsed card */
   .playlist-card.collapsed .playlist-card-logo {
-    /* Card is horizontal, height 6rem. padding: 0.5rem 1.5rem; */
-    width: auto; /* Icon's natural width */
-    height: 100%; /* Make logo container span card height for easier transform */
-    top: 0; /* Align to top for vertical centering with transform */
-    left: 1rem; /* Position from left. Card has 1.5rem left padding. */
-    /* This places it slightly into the padding area. Fine for visual balance. */
-    transform: translateY(0) rotate(0deg); /* Reset Y translate, just rotate */
-    /* To vertically center the icon itself within the 100% height container: */
-    /* The container is display:flex, align-items:center, justify-content:center */
-    /* So the icon inside will be centered. Then the container is rotated. */
-    /* Let's ensure the transform is correct for this orientation */
-    transform-origin: center left; /* Rotate around the left edge, vertically centered */
-    /* Or more simply, if the container is full height and flex centers the icon: */
-    /* The container itself is what we position and rotate. */
-    /* Re-evaluating: */
+    display: flex;
+    width: auto;
+    height: 100%;
+    top: 0;
+    left: 1rem;
+    transform: translateY(0) rotate(0deg);
+    transform-origin: center left;
     top: 50%;
-    left: 7rem; /* Adjust for visual centering considering rotation point. (1.5rem padding + 1rem into content) */
+    left: 7rem;
     transform: translateY(-50%) rotate(0deg);
-    transform-origin: center; /* Rotate around the center of the logo element */
-    bottom: auto; /* Clear bottom from previous rule */
+    transform-origin: center;
+    bottom: auto;
   }
 
   .playlist-card.open {
@@ -1548,6 +1760,12 @@ html {
     height: 5.5rem; /* Slightly smaller height for collapsed state */
     padding: 0.8rem 1rem; /* Adjusted padding */
   }
+
+  .playlist-card.collapsed .playlist-card-logo {
+    /* Keep existing styles like left, font-size */
+    left: 6.5rem; /* */
+    font-size: 2rem; /* */
+}
 
   .playlist-header {
     flex-direction: column;

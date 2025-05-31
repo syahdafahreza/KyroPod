@@ -35,6 +35,49 @@
             });
         }
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const splashLoadingBarFill = document.getElementById('splash-loading-bar-fill');
+            const splashScreenElement = document.getElementById('splash-screen');
+
+            if (splashLoadingBarFill && splashScreenElement) {
+                // Check if the splash screen is actually visible when DOM is ready
+                const isSplashScreenVisible = () => {
+                    if (!splashScreenElement.parentNode) return false; // No longer in DOM
+                    const styles = getComputedStyle(splashScreenElement);
+                    return styles.display !== 'none' && parseFloat(styles.opacity) > 0;
+                };
+
+                if (isSplashScreenVisible()) {
+                    let progress = 0;
+                    const DURATION_MS = 1500; // Total duration for the loading bar (e.g., 1.5 seconds)
+                    const INTERVAL_MS = 20;   // Update interval (e.g., 50 updates per second)
+                    const STEPS = DURATION_MS / INTERVAL_MS;
+                    const INCREMENT = 100 / STEPS;
+
+                    function updateSplashProgress() {
+                        if (!isSplashScreenVisible()) {
+                            // Splash screen was hidden by React or other means, stop animation.
+                            // Optionally, ensure bar is full if it was close.
+                            if (progress > 80 && splashLoadingBarFill.style.width !== '100%') {
+                                splashLoadingBarFill.style.width = '100%';
+                            }
+                            return;
+                        }
+
+                        progress += INCREMENT;
+                        if (progress <= 100) {
+                            splashLoadingBarFill.style.width = progress + '%';
+                            setTimeout(updateSplashProgress, INTERVAL_MS);
+                        } else {
+                            splashLoadingBarFill.style.width = '100%';
+                        }
+                    }
+                    updateSplashProgress(); // Start animation immediately
+                }
+            }
+        });
+    </script>
     <style>
         /* Ensure playlist-list is scrollable and has a defined height or max-height */
         .playlist-list {
@@ -64,8 +107,19 @@
 </head>
 
 <body>
+    <div id="splash-screen">
+        <div class="splash-preview-container">
+            <div class="splash-playlist-card-preview">
+                <img src="svg/compact-disc-solid.svg" alt="KyroPod" class="splash-icon" />
+            </div>
+            <div class="splash-player-card-preview">
+                <div class="loading-bar-container-splash">
+                    <div id="splash-loading-bar-fill" class="loading-bar-fill-splash"></div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="root"></div>
-
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -199,6 +253,7 @@
             const [isSidebarOpen, setIsSidebarOpen] = useState(false);
             const [isEQSidebarOpen, setIsEQSidebarOpen] = useState(false);
             const [isSortDropupOpen, setIsSortDropupOpen] = useState(false);
+            const [initialAnimationsApplied, setInitialAnimationsApplied] = useState(false);
             const [isVolumeFlyoutVisible, setIsVolumeFlyoutVisible] = useState(false);
             const [flyoutDisplayVolume, setFlyoutDisplayVolume] = useState(0);
             const [isSearchActive, setIsSearchActive] = useState(false);
@@ -222,6 +277,58 @@
                     setHasScrolledThisSession(false);
                 }
             }, [isSidebarOpen]);
+
+            useEffect(() => {
+                const splashScreen = document.getElementById('splash-screen');
+
+                if (splashScreen) {
+                    const displayDuration = 2500; // Show splash fully opaque for 2 seconds
+                    // This allows the 1.5s loading bar to complete with some margin.
+                    const fadeDuration = 500;    // This MUST match your CSS transition-duration for opacity on #splash-screen.hidden
+
+                    // Timer to initiate the fade-out after the displayDuration
+                    const fadeTimer = setTimeout(() => {
+                        if (splashScreen.parentNode) { // Check if splashScreen still exists
+                            splashScreen.classList.add('hidden');
+
+                            // Timer to remove the element from DOM after fade-out animation completes
+                            const removeTimer = setTimeout(() => {
+                                if (splashScreen.parentNode) {
+                                    splashScreen.parentNode.removeChild(splashScreen);
+                                }
+                            }, fadeDuration);
+
+                            // Store removeTimer ID on the element for potential cleanup during unmount
+                            splashScreen.dataset.removeTimerId = removeTimer.toString();
+                        }
+                    }, displayDuration);
+
+                    // Cleanup function for when the App component unmounts
+                    return () => {
+                        clearTimeout(fadeTimer);
+
+                        const removeTimerId = splashScreen.dataset.removeTimerId;
+                        if (removeTimerId) {
+                            clearTimeout(parseInt(removeTimerId));
+                        }
+
+                        // Fallback: If the component unmounts unexpectedly while splash is still there,
+                        // and it hasn't been removed by the timers, ensure it's removed.
+                        // This is a safeguard, primarily for rapid development HMR or edge cases.
+                        if (splashScreen.parentNode) {
+                            // splashScreen.parentNode.removeChild(splashScreen); // Consider if truly needed, might conflict if already mid-removal
+                        }
+                    };
+                }
+            }, []);
+
+            useEffect(() => {
+                const timer = setTimeout(() => {
+                    setInitialAnimationsApplied(true);
+                }, 4600); // Adjust if animation timings change
+
+                return () => clearTimeout(timer); // Cleanup timer on component unmount
+            }, []);
 
             // Effect for playlist auto-scroll (one-time per open session)
             useEffect(() => {
@@ -998,14 +1105,17 @@
                         {!isSidebarOpen && !isEQSidebarOpen && (
                             <>
                                 <button
-                                    className={`sidebar-toggle-btn mt-3 ${isEQSidebarOpen ? "eq-button-hidden" : ""}`}
+                                    className={`sidebar-toggle-btn mt-3 ${isEQSidebarOpen ? "eq-button-hidden" : ""} ${!initialAnimationsApplied ? "apply-initial-fade" : ""}`}
                                     aria-label="Open Equalizer"
                                     onClick={toggleEQSidebar}
-                                    style={{ alignSelf: 'center' }} // Keep EQ button centered
+                                    style={{ alignSelf: 'center' }}
                                 >
                                     <i className="fas fa-sliders" aria-hidden="true"></i>
                                 </button>
-                                <div className="playlist-card-logo mb-3 font-weight-bold" style={{ textAlign: 'center', marginTop: 'auto' }}>
+                                <div
+                                    className={`playlist-card-logo mb-3 font-weight-bold ${!initialAnimationsApplied ? "apply-initial-fade" : ""}`}
+                                    style={{ textAlign: 'center', marginTop: 'auto' }}
+                                >
                                     Kyrop<i className="fas fa-compact-disc"></i>d
                                 </div>
                             </>
