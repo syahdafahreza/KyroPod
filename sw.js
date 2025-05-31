@@ -21,8 +21,13 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        console.log('Opened cache:', CACHE_NAME);
+        // Penting: Pastikan untuk mengambil ulang aset saat cache baru dibuat
+        // Dengan addAll, jika salah satu fetch gagal, seluruh proses caching gagal.
+        return cache.addAll(urlsToCache.map(url => new Request(url, { cache: 'reload' })));
+      })
+      .catch(error => {
+        console.error('Failed to cache resources during install:', error);
       })
   );
 });
@@ -36,7 +41,21 @@ self.addEventListener('fetch', event => {
         if (response) {
           return response;
         }
-        return fetch(event.request);
+        // Jika tidak ada di cache, ambil dari jaringan
+        return fetch(event.request).then(networkResponse => {
+          // Opsional: Jika Anda ingin secara dinamis menambahkan item ke cache yang tidak ada di urlsToCache
+          // if (networkResponse && networkResponse.status === 200 && event.request.method === 'GET' /* dan kriteria lain */) {
+          //   const responseToCache = networkResponse.clone();
+          //   caches.open(CACHE_NAME).then(cache => {
+          //     cache.put(event.request, responseToCache);
+          //   });
+          // }
+          return networkResponse;
+        }).catch(error => {
+          console.error('Fetching failed:', error);
+          // Anda bisa mengembalikan halaman fallback offline di sini jika diperlukan
+          // throw error;
+        });
       }
     )
   );
@@ -44,12 +63,13 @@ self.addEventListener('fetch', event => {
 
 // Activate event: clean up old caches
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
+  const cacheWhitelist = [CACHE_NAME]; // Hanya cache dengan nama saat ini yang dipertahankan
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
