@@ -465,9 +465,9 @@ html {
 /* CSS for Splash Screen Loading Bar */
 .loading-bar-container-splash {
   width: 100%; /* Adjust width as needed, relative to splash-player-card-preview */
-  height: 10px; /* Adjust height as needed */
+  height: 15px; /* Adjust height as needed */
   background-color: var(--greyLight-2); /* Track color */
-  border-radius: 4px; /* Rounded corners for the track */
+  border-radius: 10px; /* Rounded corners for the track */
   margin-top: 0.6rem; /* Space from the top edge of splash-player-card-preview */
   overflow: hidden; /* Ensure fill stays within bounds */
   box-shadow: var(--neumorphic-shadow-in-sm); /* Neumorphic inset shadow for the track */
