@@ -6,6 +6,7 @@ const urlsToCache = [
   '/KyroPod/svg/compact-disc-solid-light.svg',
   '/KyroPod/svg/compact-disc-solid-dark.svg',
   '/KyroPod/svg/compact-disc-solid.svg',
+  'https://placehold.co/200x200/bec8e4/9baacf?text=No+Art',
   '/KyroPod/fontawesome/css/all.css',
   '/KyroPod/fontawesome/css/all.min.css',
   '/KyroPod/fontawesome/css/brands.css',
