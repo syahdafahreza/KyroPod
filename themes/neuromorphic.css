@@ -465,12 +465,12 @@ html {
 /* CSS for Splash Screen Loading Bar */
 .loading-bar-container-splash {
   width: 100%; /* Adjust width as needed, relative to splash-player-card-preview */
-  height: 15px; /* Adjust height as needed */
-  border-radius: 10px; /* Rounded corners for the track */
+  height: 10px; /* Adjust height as needed */
+  background-color: var(--greyLight-2); /* Track color */
+  border-radius: 4px; /* Rounded corners for the track */
   margin-top: 0.6rem; /* Space from the top edge of splash-player-card-preview */
   overflow: hidden; /* Ensure fill stays within bounds */
-  box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
-    inset -0.2rem -0.2rem 0.5rem var(--white); /* Neumorphic inset shadow for the track */
+  box-shadow: var(--neumorphic-shadow-in-sm); /* Neumorphic inset shadow for the track */
   position: relative; /* For potential future absolute positioning of text if needed */
 }
 
@@ -487,7 +487,52 @@ html {
   border-radius: 4px; /* Rounded corners for the fill */
   transition: width 0.05s linear; /* Smooth but fast transition for width changes by JS */
 }
-/* SplashScreen loading */
+/* SplashScreen loading bar end */
+
+/* --- CSS for Lyric Flyout --- */
+.lyric-flyout-container {
+  position: absolute; /* Relatif terhadap .player-card atau parent yang berposisi */
+  top: 20px;          /* Jarak dari atas parent */
+  left: 50%;
+  transform: translateX(-50%) translateY(-150%); /* Mulai dari luar layar atas */
+  opacity: 0;
+  z-index: 1600;      /* Pastikan di atas elemen lain seperti album art, sesuaikan jika perlu */
+  padding: 8px 15px; /* Padding lebih kecil dari volume flyout */
+  background-color: rgba(20, 20, 30, 0.75); /* Latar belakang gelap transparan */
+  color: var(--white); /* Teks putih */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  animation: lyricFlyInAnimation 0.4s ease-out forwards; /* Gunakan nama animasi yang unik */
+  text-align: center;
+  max-width: 85%;     /* Batasi lebar agar tidak terlalu memanjang */
+  pointer-events: none; /* Agar tidak mengganggu interaksi di bawahnya */
+  font-size: 1.5rem;  /* Sesuaikan ukuran font jika perlu */
+  line-height: 1.4;
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out; /* Untuk animasi keluar jika diperlukan */
+}
+
+@keyframes lyricFlyInAnimation { /* Nama unik untuk keyframes */
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-150%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Jika Anda ingin animasi keluar saat lirik disembunyikan (opsional, karena biasanya langsung diganti) */
+/* .lyric-flyout-container.hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-150%);
+} */
+
+.lyric-flyout-content {
+  /* Tidak perlu style spesifik tambahan jika sudah diatur di container */
+  /* font-weight: 500; (opsional) */
+}
+/* Lyric flyout end */
 
 @media screen and (min-width: 900px) {
   html {

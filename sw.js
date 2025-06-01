@@ -2,6 +2,7 @@
 const CACHE_NAME = 'kyropod-cache-v1';
 const urlsToCache = [
   '/KyroPod/',
+  '/KyroPod/app.js',
   '/KyroPod/themes/neuromorphic.css',
   '/KyroPod/svg/compact-disc-solid-light.svg',
   '/KyroPod/svg/compact-disc-solid-dark.svg',
