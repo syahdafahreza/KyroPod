@@ -131,7 +131,11 @@ function App() {
     "https://placehold.co/200x200/bec8e4/9baacf?text=No+Art"
   );
   const [lrcData, setLrcData] = useState({ fileName: null, lyrics: [] });
-  const [currentLyric, setCurrentLyric] = useState({ text: "", key: 0 }); // 'key' untuk memicu animasi ulang
+  const [currentLyric, setCurrentLyric] = useState({
+    text: "",
+    key: 0,
+    time: 0,
+  }); // 'key' untuk memicu animasi ulang
 
   // Playback Progress & Volume
   const [currentTime, setCurrentTime] = useState(0);
@@ -144,6 +148,7 @@ function App() {
   const [isEQSidebarOpen, setIsEQSidebarOpen] = useState(false);
   const [isSortDropupOpen, setIsSortDropupOpen] = useState(false);
   const [isLyricFlyoutVisible, setIsLyricFlyoutVisible] = useState(false);
+  const [isLyricExiting, setIsLyricExiting] = useState(false);
   const [isVolumeFlyoutVisible, setIsVolumeFlyoutVisible] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [lyricsNotification, setLyricsNotification] = useState({
@@ -186,6 +191,10 @@ function App() {
   const gapPixels = 30;
   const SIDEBAR_ANIMATION_DURATION = 300; // ms, match this with your CSS transition for .playlist-card
   const SCROLL_SETTLE_DELAY = 50; // ms, for scrollTop=0 to paint before smooth scroll
+  const LYRIC_ANTICIPATION_OFFSET_SECONDS = 0.2;
+  const LYRIC_EXIT_THRESHOLD_SECONDS = 7.0; // Ini konstanta Anda, akan digunakan sebagai durasi maksimal lirik tampil saat jeda panjang
+  const LYRIC_EXIT_ANIMATION_DURATION_MS = 300;
+  const LYRIC_TRANSITION_BETWEEN_LINES_GAP_SECONDS = 5.0; // Jeda antar DUA lirik BERBEDA. Jika start_L2 - start_L1 > ini, animasi keluar L1 dulu.
 
   const { isOverflowing: isTitleOverflowing } = useMarquee(
     songTitle,
@@ -745,7 +754,7 @@ function App() {
         );
         setCurrentTime(0);
         setDuration(0);
-        setCurrentLyric({ text: "", key: 0 });
+        setCurrentLyric({ text: "", key: Date.now(), time: 0 });
         setIsLyricFlyoutVisible(false);
         // setIsPlaying(false); // Biarkan useAudioStateSync yang menangani ini
         return; // Keluar dari effect jika tidak ada file yang valid
@@ -769,7 +778,7 @@ function App() {
       setSongTitle(initialTitle); // Set judul awal dengan cepat
       setSongArtist(initialArtist); // Set artis awal dengan cepat
       // Reset lirik saat lagu berubah, sebelum jsmediatags selesai atau lirik dari songObject dimuat
-      setCurrentLyric({ text: "", key: Date.now() });
+      setCurrentLyric({ text: "", key: Date.now(), time: 0 });
       setIsLyricFlyoutVisible(false);
 
       jsmediatags.read(audioFile, {
@@ -905,7 +914,7 @@ function App() {
       setAlbumArtUrl("https://placehold.co/200x200/bec8e4/9baacf?text=No+Art");
       setCurrentTime(0);
       setDuration(0);
-      setCurrentLyric({ text: "", key: 0 }); // Tambahkan ini
+      setCurrentLyric({ text: "", key: Date.now(), time: 0 }); // Tambahkan ini
       setIsLyricFlyoutVisible(false); // Tambahkan ini
       // setIsPlaying(false); // Biarkan useAudioStateSync yang menangani ini
     }
@@ -982,7 +991,7 @@ function App() {
       setIsPlaying(false); // Jangan autoplay saat folder baru dimuat
       // Kosongkan lrcData global karena lirik kini per lagu
       setLrcData({ fileName: null, lyrics: [] });
-      setCurrentLyric({ text: "", key: 0 });
+      setCurrentLyric({ text: "", key: Date.now(), time: 0 });
       setIsLyricFlyoutVisible(false);
     } else if (files.length > 0 && audioFilesMap.size === 0) {
       showLyricsNotification(
@@ -1134,7 +1143,7 @@ function App() {
           (newCurrentSongIndex === 0 && updatedPlaylist.length === 1)
         ) {
           setLrcData({ fileName: null, lyrics: [] });
-          setCurrentLyric({ text: "", key: Date.now() });
+          setCurrentLyric({ text: "", key: Date.now(), time: 0 });
           setIsLyricFlyoutVisible(false);
         }
         return updatedPlaylist;
@@ -1330,7 +1339,7 @@ function App() {
         );
         setCurrentTime(0);
         setDuration(0);
-        setCurrentLyric({ text: "", key: 0 }); // Tambahkan/Pastikan ini ada
+        setCurrentLyric({ text: "", key: Date.now(), time: 0 }); // Tambahkan/Pastikan ini ada
         setIsLyricFlyoutVisible(false); // Tambahkan/Pastikan ini ada
         setLrcData({ fileName: null, lyrics: [] }); // Tambahkan/Pastikan ini ada
       } else if (currentSongIndex === indexToDeleteInOriginal) {
@@ -1358,7 +1367,7 @@ function App() {
     setIsRepeating(false);
     setIsShuffling(false);
     setLrcData({ fileName: null, lyrics: [] }); // Reset lrcData
-    setCurrentLyric({ text: "", key: 0 });
+    setCurrentLyric({ text: "", key: Date.now(), time: 0 });
     setIsLyricFlyoutVisible(false);
     if (audioRef.current) {
       audioRef.current.pause();
@@ -1447,7 +1456,7 @@ function App() {
               `Lirik untuk "${audioBaseName}" berhasil dimuat.`
             );
             // Reset lirik yang sedang ditampilkan karena lirik baru telah dimuat untuk lagu saat ini
-            setCurrentLyric({ text: "", key: Date.now() });
+            setCurrentLyric({ text: "", key: Date.now(), time: 0 });
             setIsLyricFlyoutVisible(false);
           } else {
             showLyricsNotification(
@@ -1486,78 +1495,167 @@ function App() {
     const currentSongObject = playlist[currentSongIndex];
     let activeLyrics = null;
 
-    // Cek apakah lagu saat ini ada, punya lirik, dan sedang diputar
     if (
       currentSongObject &&
       currentSongObject.lyrics &&
-      currentSongObject.lyrics.length > 0 &&
-      isPlaying
+      currentSongObject.lyrics.length > 0
     ) {
       activeLyrics = currentSongObject.lyrics;
     }
 
-    if (!activeLyrics) {
-      // Jika tidak ada lirik aktif (atau kondisi tidak terpenuhi)
-      if (isLyricFlyoutVisible) {
-        setIsLyricFlyoutVisible(false);
-      }
-      if (currentLyric.text !== "") {
-        setCurrentLyric({ text: "", key: Date.now() });
-      }
-      return; // Keluar lebih awal
+    // Guard untuk animasi keluar yang sedang berlangsung
+    if (isLyricExiting) {
+      return;
     }
 
-    // Logika pencarian lirik berdasarkan currentTime
-    let newLyricToShow = null;
-    for (let i = 0; i < activeLyrics.length; i++) {
-      const lyricLine = activeLyrics[i];
-      const nextLyricLine =
-        i + 1 < activeLyrics.length ? activeLyrics[i + 1] : null;
+    let determinedLyricToShow = null; // Lirik yang DIHITUNG seharusnya tampil saat ini
+    if (activeLyrics && isPlaying) {
+      for (let i = 0; i < activeLyrics.length; i++) {
+        const currentLine = activeLyrics[i]; // Baris lirik yang sedang dievaluasi
+        const nextLine =
+          i + 1 < activeLyrics.length ? activeLyrics[i + 1] : null;
 
-      if (currentTime >= lyricLine.time) {
-        if (nextLyricLine) {
-          if (currentTime < nextLyricLine.time) {
-            newLyricToShow = lyricLine;
-            break;
-          }
+        // Waktu mulai aktual baris lirik ini (sebelum antisipasi)
+        const actualLineStartTime = currentLine.time;
+        // Waktu mulai baris lirik ini untuk ditampilkan (dengan antisipasi)
+        const displayStartTime =
+          actualLineStartTime - LYRIC_ANTICIPATION_OFFSET_SECONDS;
+
+        let displayEndTime;
+
+        // Waktu berakhir maksimal berdasarkan durasi tampil yang diizinkan
+        const maxStayEndTime =
+          actualLineStartTime + LYRIC_EXIT_THRESHOLD_SECONDS;
+
+        if (nextLine) {
+          // Jika ada baris lirik berikutnya
+          // Waktu mulai baris berikutnya (dengan antisipasinya)
+          const anticipatedNextLineStartTime =
+            nextLine.time - LYRIC_ANTICIPATION_OFFSET_SECONDS;
+
+          // Baris saat ini berakhir entah saat baris berikutnya mulai, atau saat durasi maksimalnya tercapai, mana yang lebih dulu
+          displayEndTime = Math.min(
+            anticipatedNextLineStartTime,
+            maxStayEndTime
+          );
         } else {
-          // Ini adalah baris lirik terakhir
-          newLyricToShow = lyricLine;
+          // Ini adalah baris lirik terakhir. Tampil selama LYRIC_EXIT_THRESHOLD_SECONDS.
+          displayEndTime = maxStayEndTime;
+        }
+
+        // Pastikan durasi tampil minimal (misalnya 0.1 detik) dan displayEndTime tidak sebelum displayStartTime
+        displayEndTime = Math.max(displayEndTime, displayStartTime + 0.1);
+
+        if (currentTime >= displayStartTime && currentTime < displayEndTime) {
+          determinedLyricToShow = currentLine; // Ditemukan lirik yang cocok
           break;
         }
       }
     }
 
-    if (newLyricToShow) {
-      // Hanya update jika teks lirik berubah atau flyout tidak visible (untuk memicu animasi masuk)
-      if (newLyricToShow.text !== currentLyric.text || !isLyricFlyoutVisible) {
-        setCurrentLyric({ text: newLyricToShow.text, key: Date.now() });
-        if (!isLyricFlyoutVisible && newLyricToShow.text.trim() !== "") {
-          // Hanya tampilkan jika ada teks
+    // --- Logika untuk menangani determinedLyricToShow ---
+
+    if (determinedLyricToShow) {
+      // Ada lirik yang DIHARUSKAN tampil saat ini
+      if (
+        determinedLyricToShow.text !== currentLyric.text ||
+        determinedLyricToShow.time !== currentLyric.time
+      ) {
+        // Lirik ini BERBEDA dari yang sedang tampil (currentLyric), atau currentLyric kosong.
+        if (currentLyric.text && currentLyric.time > 0) {
+          // Ada currentLyric yang valid sebelumnya. Cek cara transisi.
+          if (
+            determinedLyricToShow.time - currentLyric.time > // Perbandingan waktu MULAI lirik baru vs lirik lama
+            LYRIC_TRANSITION_BETWEEN_LINES_GAP_SECONDS
+          ) {
+            // Jeda besar antara waktu MULAI lirik lama dan lirik baru. Animasikan keluar lirik lama dulu.
+            setIsLyricExiting(true);
+            setTimeout(() => {
+              setCurrentLyric({ text: "", key: Date.now(), time: 0 });
+              setIsLyricFlyoutVisible(false);
+              setIsLyricExiting(false);
+              // Lirik baru (determinedLyricToShow) akan di-set pada siklus useEffect berikutnya
+            }, LYRIC_EXIT_ANIMATION_DURATION_MS);
+            // Jangan set currentLyric ke determinedLyricToShow di sini.
+          } else {
+            // Jeda kecil, atau lirik lama memang sudah seharusnya diganti. Ganti langsung.
+            setCurrentLyric({
+              text: determinedLyricToShow.text,
+              key: Date.now(),
+              time: determinedLyricToShow.time,
+            });
+            if (
+              !isLyricFlyoutVisible &&
+              determinedLyricToShow.text.trim() !== ""
+            ) {
+              setIsLyricFlyoutVisible(true);
+            }
+          }
+        } else {
+          // Tidak ada currentLyric yang valid sebelumnya (misal, currentLyric kosong). Langsung set lirik baru.
+          setCurrentLyric({
+            text: determinedLyricToShow.text,
+            key: Date.now(),
+            time: determinedLyricToShow.time,
+          });
+          if (
+            !isLyricFlyoutVisible &&
+            determinedLyricToShow.text.trim() !== ""
+          ) {
+            setIsLyricFlyoutVisible(true);
+          }
+        }
+      } else {
+        // determinedLyricToShow SAMA dengan currentLyric (teks dan waktu cocok).
+        // Ini berarti currentLyric masih valid untuk ditampilkan berdasarkan perhitungan displayEndTime-nya.
+        // Pastikan ia terlihat jika tersembunyi (misal setelah resume dan isPlaying true).
+        if (currentLyric.text && !isLyricFlyoutVisible && isPlaying) {
           setIsLyricFlyoutVisible(true);
-        } else if (newLyricToShow.text.trim() === "" && isLyricFlyoutVisible) {
-          // Sembunyikan jika teks kosong
-          setIsLyricFlyoutVisible(false);
         }
       }
     } else {
-      // Tidak ada lirik yang cocok untuk currentTime (misalnya, sebelum lirik pertama atau setelah terakhir)
-      if (isLyricFlyoutVisible) {
-        setIsLyricFlyoutVisible(false);
-      }
-      if (currentLyric.text !== "") {
-        setCurrentLyric({ text: "", key: Date.now() });
+      // determinedLyricToShow adalah NULL. Tidak ada lirik yang seharusnya aktif pada currentTime.
+      // Ini terjadi jika currentTime sebelum lirik pertama, atau setelah displayEndTime sebuah lirik terlewati.
+      if (currentLyric.text && isLyricFlyoutVisible) {
+        // Ada lirik (currentLyric) yang sedang tampil tapi seharusnya sudah tidak. Animasikan keluar.
+        setIsLyricExiting(true);
+        setTimeout(() => {
+          setCurrentLyric({ text: "", key: Date.now(), time: 0 });
+          setIsLyricFlyoutVisible(false);
+          setIsLyricExiting(false);
+        }, LYRIC_EXIT_ANIMATION_DURATION_MS);
+      } else if (
+        currentLyric.text &&
+        !isLyricFlyoutVisible &&
+        !isLyricExiting
+      ) {
+        // currentLyric punya teks tapi tidak visible dan tidak sedang animasi keluar (misal, sudah selesai exit).
+        // Pastikan state-nya bersih jika memang tidak kosong.
+        if (currentLyric.text !== "") {
+          setCurrentLyric({ text: "", key: Date.now(), time: 0 });
+        }
       }
     }
-    // Hapus lrcData dari dependencies. playlist dan currentSongIndex sudah ada.
-    // currentLyric.text ditambahkan agar effect dievaluasi ulang jika text berubah dari luar (jarang, tapi aman)
+
+    // Tangani kasus pause: jika musik di-pause, sembunyikan lirik (kecuali sedang animasi keluar)
+    if (!isLyricExiting && !isPlaying && isLyricFlyoutVisible) {
+      setIsLyricFlyoutVisible(false);
+    }
   }, [
     currentTime,
     playlist,
     currentSongIndex,
     isPlaying,
     isLyricFlyoutVisible,
-    currentLyric.text,
+    currentLyric.text, // Penting untuk dependensi agar effect re-run saat currentLyric berubah
+    currentLyric.time,
+    isLyricExiting,
+    // Konstanta di bawah ini bisa ditambahkan jika ada kemungkinan nilainya berubah via state/props,
+    // tapi jika didefinisikan sebagai const di scope atas, tidak wajib di sini.
+    // LYRIC_ANTICIPATION_OFFSET_SECONDS,
+    // LYRIC_EXIT_THRESHOLD_SECONDS,
+    // LYRIC_TRANSITION_BETWEEN_LINES_GAP_SECONDS,
+    // LYRIC_EXIT_ANIMATION_DURATION_MS
   ]);
 
   return (
@@ -1861,7 +1959,13 @@ function App() {
       {/* Main Player Card */}
       <div className="player-card">
         {isLyricFlyoutVisible && currentLyric.text && (
-          <div key={currentLyric.key} className="lyric-flyout-container">
+          <div
+            key={currentLyric.key}
+            // MODIFIKASI BARIS DI BAWAH INI
+            className={`lyric-flyout-container ${
+              isLyricExiting ? "lyric-flyout-exit" : ""
+            }`}
+          >
             <div className="lyric-flyout-content">{currentLyric.text}</div>
           </div>
         )}

@@ -238,7 +238,9 @@ html {
   opacity: 0;
   z-index: 2000; /* Ensure it's above other elements */
   padding: 12px 20px;
-  background-color: var(--greyLight-1); /* Modern dark, slightly transparent background */
+  background-color: var(
+    --greyLight-1
+  ); /* Modern dark, slightly transparent background */
   color: var(--greyDark); /* Light text color for contrast */
   border-radius: 12px; /* Rounded corners */
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25), 0 4px 10px rgba(0, 0, 0, 0.15); /* Softer, modern shadow */
@@ -266,8 +268,8 @@ html {
 
 .volume-flyout-content i {
   font-size: 1.3em; /* Your existing font size */
-  flex-shrink: 0;   /* Keep this to prevent shrinking */
-  width: 1.6em;     /* FIXED WIDTH: Adjust this value (e.g., 1.5em, 25px)
+  flex-shrink: 0; /* Keep this to prevent shrinking */
+  width: 1.6em; /* FIXED WIDTH: Adjust this value (e.g., 1.5em, 25px)
                        to be wide enough for your largest/widest icon.
                        Using 'em' keeps it relative to the font size. */
   text-align: center; /* Centers the icon glyph within its fixed-width box */
@@ -302,11 +304,11 @@ html {
 }
 
 .volume-flyout-value {
-  font-size: 1em;    /* Your existing font size */
-  font-weight: 500;  /* Your existing font weight */
+  font-size: 1em; /* Your existing font size */
+  font-weight: 500; /* Your existing font weight */
   min-width: 35px; /* Remove or comment out min-width if you used it */
   text-align: right; /* Keep this: aligns numbers (0, 10, 100) to the right within the box */
-  flex-shrink: 0;    /* Keep this to prevent shrinking */
+  flex-shrink: 0; /* Keep this to prevent shrinking */
 }
 /* --- End of CSS for Volume Flyout --- */
 
@@ -317,7 +319,9 @@ html {
   left: 0;
   width: 100vw; /* Lebar penuh viewport */
   height: 100vh; /* Tinggi penuh viewport */
-  background-color: var(--greyLight-1); /* Menggunakan variabel warna dari CSS Anda */
+  background-color: var(
+    --greyLight-1
+  ); /* Menggunakan variabel warna dari CSS Anda */
   display: flex;
   flex-direction: column; /* Susun elemen secara vertikal */
   justify-content: center; /* Pusatkan secara vertikal */
@@ -336,11 +340,13 @@ html {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background-color: var(--greyLight-1); /* Memberikan dasar warna pada spinner, sesuaikan dengan bg splash screen */
+  background-color: var(
+    --greyLight-1
+  ); /* Memberikan dasar warna pada spinner, sesuaikan dengan bg splash screen */
 
   /* Shadow untuk container spinner (track), sama seperti .slider__box */
   box-shadow: inset 0.2rem 0.2rem 0.5rem var(--greyLight-2),
-              inset -0.2rem -0.2rem 0.5rem var(--white); /* */
+    inset -0.2rem -0.2rem 0.5rem var(--white); /* */
   position: relative; /* Diperlukan untuk memposisikan pseudo-element ::before */
   margin-bottom: 20px; /* Jarak dari teks loading */
 }
@@ -359,19 +365,24 @@ html {
   /* Ini akan membuat segmen/arc berwarna (misalnya 90 derajat) dengan gradient yang diinginkan,
      dan sisa lingkaran akan transparan. */
   background: conic-gradient(
-    from 0deg, /* Titik awal conic gradient */
-    var(--primary-dark) 0deg,    /* Warna awal gradient di 0 derajat */
-    var(--primary) 45deg,        /* Warna tengah gradient di 45 derajat (tengah dari arc 90 derajat) */
-    var(--primary-light) 90deg,  /* Warna akhir gradient di 90 derajat */
-    transparent 90.01deg,      /* Mulai transparan setelah arc 90 derajat */
-    transparent 360deg         /* Sisa lingkaran transparan */
+    from 0deg,
+    /* Titik awal conic gradient */ var(--primary-dark) 0deg,
+    /* Warna awal gradient di 0 derajat */ var(--primary) 45deg,
+    /* Warna tengah gradient di 45 derajat (tengah dari arc 90 derajat) */
+      var(--primary-light) 90deg,
+    /* Warna akhir gradient di 90 derajat */ transparent 90.01deg,
+    /* Mulai transparan setelah arc 90 derajat */ transparent 360deg
+      /* Sisa lingkaran transparan */
   );
 
   /* Membuat efek "cincin" atau "ring" dengan memotong bagian tengah.
      Ketebalan arc/cincin akan sekitar 7px jika spinner berukuran 60px.
      calc(50% - 7px) menghasilkan radius dalam sekitar 23px untuk spinner 60px.
   */
-  -webkit-mask: radial-gradient(transparent calc(50% - 5px), white calc(50% - 7px));
+  -webkit-mask: radial-gradient(
+    transparent calc(50% - 5px),
+    white calc(50% - 7px)
+  );
   mask: radial-gradient(transparent calc(50% - 5px), white calc(50% - 7px));
   /* Penjelasan mask:
      - 'transparent calc(50% - 7px)': Bagian tengah (hingga radius 23px) akan transparan (terpotong).
@@ -470,7 +481,9 @@ html {
   border-radius: 4px; /* Rounded corners for the track */
   margin-top: 0.6rem; /* Space from the top edge of splash-player-card-preview */
   overflow: hidden; /* Ensure fill stays within bounds */
-  box-shadow: var(--neumorphic-shadow-in-sm); /* Neumorphic inset shadow for the track */
+  box-shadow: var(
+    --neumorphic-shadow-in-sm
+  ); /* Neumorphic inset shadow for the track */
   position: relative; /* For potential future absolute positioning of text if needed */
 }
 
@@ -478,8 +491,8 @@ html {
   width: 0%; /* Initial width, JavaScript will animate this */
   height: 100%;
   background: var(--primary); /* Fill color */
-  background: linear-gradient( /* Optional: Gradient for the fill */
-    -1deg,
+  background: linear-gradient(
+    /* Optional: Gradient for the fill */ -1deg,
     var(--primary-dark) 0%,
     var(--primary) 50%,
     var(--primary-light) 100%
@@ -492,26 +505,31 @@ html {
 /* --- CSS for Lyric Flyout --- */
 .lyric-flyout-container {
   position: absolute; /* Relatif terhadap .player-card atau parent yang berposisi */
-  top: 20px;          /* Jarak dari atas parent */
+  top: 20px; /* Jarak dari atas parent */
   left: 50%;
   transform: translateX(-50%) translateY(-150%); /* Mulai dari luar layar atas */
   opacity: 0;
-  z-index: 1600;      /* Pastikan di atas elemen lain seperti album art, sesuaikan jika perlu */
+  z-index: 1600; /* Pastikan di atas elemen lain seperti album art, sesuaikan jika perlu */
   padding: 8px 15px; /* Padding lebih kecil dari volume flyout */
-  background-color: rgba(20, 20, 30, 0.75); /* Latar belakang gelap transparan */
+  background-color: rgba(
+    20,
+    20,
+    30,
+    0.75
+  ); /* Latar belakang gelap transparan */
   color: var(--white); /* Teks putih */
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   animation: lyricFlyInAnimation 0.4s ease-out forwards; /* Gunakan nama animasi yang unik */
   text-align: center;
-  max-width: 85%;     /* Batasi lebar agar tidak terlalu memanjang */
+  max-width: 85%; /* Batasi lebar agar tidak terlalu memanjang */
   pointer-events: none; /* Agar tidak mengganggu interaksi di bawahnya */
-  font-size: 1.5rem;  /* Sesuaikan ukuran font jika perlu */
-  line-height: 1.4;
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out; /* Untuk animasi keluar jika diperlukan */
+  font-size: 1.5rem; /* Sesuaikan ukuran font jika perlu */
+  line-height: 1.4; /* Untuk animasi keluar jika diperlukan */
 }
 
-@keyframes lyricFlyInAnimation { /* Nama unik untuk keyframes */
+@keyframes lyricFlyInAnimation {
+  /* Nama unik untuk keyframes */
   0% {
     opacity: 0;
     transform: translateX(-50%) translateY(-150%);
@@ -522,11 +540,21 @@ html {
   }
 }
 
-/* Jika Anda ingin animasi keluar saat lirik disembunyikan (opsional, karena biasanya langsung diganti) */
-/* .lyric-flyout-container.hidden {
-  opacity: 0;
-  transform: translateX(-50%) translateY(-150%);
-} */
+.lyric-flyout-container.lyric-flyout-exit {
+  animation: lyricFlyOutAnimation 0.3s ease-in forwards; /* Durasi harus sama dengan LYRIC_EXIT_ANIMATION_DURATION_MS */
+}
+
+@keyframes lyricFlyOutAnimation {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    /* Contoh: fly out ke bawah. Sesuaikan sesuai keinginan Anda */
+    transform: translateX(-50%) translateY(50%);
+  }
+}
 
 .lyric-flyout-content {
   /* Tidak perlu style spesifik tambahan jika sudah diatur di container */
@@ -1810,7 +1838,7 @@ html {
     /* Keep existing styles like left, font-size */
     left: 6.5rem; /* */
     font-size: 2rem; /* */
-}
+  }
 
   .playlist-header {
     flex-direction: column;
