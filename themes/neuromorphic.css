@@ -1818,6 +1818,7 @@ html {
   .mt-3,
   .my-3 {
     margin-top: 0 !important;
+    margin-left: 7px !important;
   }
 
   .playlist-card,
